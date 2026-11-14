@@ -36,7 +36,7 @@ Leyenda: ✅ cumple · ⏸ diferido (justificado en *Complexity Tracking*) · N/
 - [x] **V. Límites de dominio:** ✅ carpetas `identidad`, `catalogo` y `carrito` creadas como futuros módulos NestJS; no se añade ninguna dependencia sin justificar (se evita `@nestjs/terminus`, ver research R5). ⏸ La regla de lint que verifica los límites entre módulos se difiere hasta que exista código en ellos (spec 002).
 - [x] **VI. Calidad:** ✅ tests Jest de `/health` (200 con SQLite real, 503 con la base de datos caída, 503 por timeout) que corren en local y CI sin servicios externos. ⏸ **SonarQube** (Quality Gate y cobertura ≥ 80 %), tests de integración con **Testcontainers** y E2E con **Playwright** diferidos. N/A TDD de precios/pedidos/pagos.
 - [x] **VII. Reversibilidad:** ✅ Conventional Commits con alcance validados por Husky + commitlint; plan de commits atómicos y verdes (ver *Orden de commits*); migración inicial versionada de Prisma. ⏸ Validación de commits y build commit a commit en el pipeline diferidas. N/A feature flags y expand/contract (no hay funcionalidad parcial ni migraciones con datos).
-- [x] **Plataforma:** ✅ TypeScript en todo el código, sin Python. ⏸ **Vercel**, **Render** (`render.yaml`), **PostgreSQL** (Render Postgres) y "solo el pipeline despliega" diferidos: esta spec no despliega nada. El cambio temporal a SQLite se registra en `docs/adr/0001-sqlite-temporal.md`, como pide la sección *Restricciones tecnológicas* de la constitución.
+- [x] **Plataforma:** ✅ TypeScript en todo el código, sin Python. ⏸ **Vercel**, **Render** (`render.yaml`), **PostgreSQL** (Render Postgres) y "solo el pipeline despliega" diferidos: esta spec no despliega nada. El cambio temporal a SQLite se justifica en *Complexity Tracking* de este plan.
 
 **Resultado de la puerta (antes de Phase 0)**: PASA con desviaciones justificadas en *Complexity Tracking*.
 
@@ -73,7 +73,6 @@ specs/001-plataforma-entrega/
 ├── commitlint.config.ts
 ├── .husky/commit-msg         # pnpm exec commitlint --edit "$1"
 ├── .github/workflows/ci.yml  # install → lint → test → build en cada PR
-├── docs/adr/0001-sqlite-temporal.md
 ├── README.md
 ├── apps/
 │   ├── api/
@@ -95,12 +94,11 @@ specs/001-plataforma-entrega/
 │   │   │       └── carrito/README.md     # spec 004
 │   │   ├── test/
 │   │   │   ├── health.e2e-spec.ts
-│   │   │   ├── jest-e2e.config.ts
+│   │   │   ├── jest-e2e.json
 │   │   │   └── global-setup.ts           # crea test.db y aplica migraciones
-│   │   ├── jest.config.ts
 │   │   └── package.json
 │   └── web/
-│       ├── .env.example      # NEXT_PUBLIC_API_URL, PORT
+│       ├── .env.example      # NEXT_PUBLIC_API_URL
 │       ├── app/
 │       │   ├── layout.tsx    # <html lang="es">
 │       │   ├── page.tsx
@@ -127,7 +125,7 @@ specs/001-plataforma-entrega/
 6. `docs(api): añadir carpetas de los módulos identidad, catalogo y carrito`
 7. `feat(web): crear la página de inicio con el estado de la API`
 8. `ci(repo): añadir workflow de GitHub Actions para PR`
-9. `docs(repo): README, .env.example y ADR de SQLite`
+9. `docs(repo): añadir README`
 
 Cada commit debe pasar `pnpm lint && pnpm test && pnpm build` por sí solo.
 
@@ -137,7 +135,7 @@ Cada commit debe pasar `pnpm lint && pnpm test && pnpm build` por sí solo.
 
 | Violation (diferida) | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **PostgreSQL** → SQLite (Plataforma, IV) | Que el proyecto arranque solo con Node.js y pnpm, sin Docker ni servidor de base de datos, en todos los equipos (SC-001). Se registra en el ADR 0001 y el README documenta el paso a PostgreSQL (FR-007). | Postgres local exige instalarlo o usar Docker en cada equipo; Render Postgres exige cuenta y red, y no se despliega nada en esta spec. Prisma hace que el cambio posterior sea de `provider` + `DATABASE_URL` + regenerar migraciones. |
+| **PostgreSQL** → SQLite (Plataforma, IV) | Que el proyecto arranque solo con Node.js y pnpm, sin Docker ni servidor de base de datos, en todos los equipos (SC-001). El README documenta el paso a PostgreSQL (FR-007). | Postgres local exige instalarlo o usar Docker en cada equipo; Render Postgres exige cuenta y red, y no se despliega nada en esta spec. Prisma hace que el cambio posterior sea de `provider` + `DATABASE_URL` + regenerar migraciones. |
 | **Vercel** (frontend) y **Render** (`render.yaml`, backend); "solo el pipeline despliega" | La spec solo pide ejecución local y CI; no hay nada que publicar. | Configurar cuentas, entornos, secretos y despliegue con aprobación manual no aporta a la entrega y añade puntos de fallo ajenos al código. |
 | **SonarQube** y su Quality Gate (VI) | El Quality Gate requiere un servidor SonarQube o una organización en SonarCloud y su token; fuera del tiempo disponible. Lint + tests en el pipeline cubren la calidad mínima. | No hay alternativa más simple que cumpla la regla: el gate es obligatorio por la constitución, por eso se difiere de forma explícita en lugar de imitarlo a medias. |
 | **Testcontainers** (integración con Postgres, Redis y RabbitMQ reales) (VI) | Requiere Docker en local y en CI, y hoy no hay Postgres, Redis ni RabbitMQ que probar. Los tests de `/health` usan SQLite real en un archivo temporal, que es una integración real con la base de datos actual. | Simular Testcontainers sin Docker no es posible; añadir Docker contradice la restricción "sin Docker" de la spec. |

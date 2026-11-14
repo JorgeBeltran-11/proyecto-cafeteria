@@ -1,172 +1,155 @@
-# Feature Specification: Plataforma de entrega continua
+# Feature Specification: Stack tecnológico base
 
 **Feature Branch**: `001-plataforma-entrega`
 **Created**: 2026-11-12
+**Updated**: 2026-11-14
 **Status**: Draft
-**Input**: User description: "Plataforma de entrega (Fase 0): flujo de Git con commits atómicos y reversibles, pipeline CI/CD con Quality Gate de SonarQube, despliegue del frontend en Vercel y del backend en Render (preview, staging, producción con aprobación manual y rollback automático), y métricas de entrega y aporte del equipo en Grafana. Basado en promtp.md §6–§9."
+**Input**: User description: "Spec #1 reducida a lo mínimo funcional: monorepo con pnpm workspaces (apps/web en Next.js, apps/api en NestJS, packages/shared con tipos compartidos), SQLite con Prisma en apps/api sin Docker, endpoint GET /health que verifica la base de datos, página de inicio que muestra el estado de la API, carpetas de módulos vacías (identidad, catalogo, carrito), tests con Jest para /health, Husky + commitlint, GitHub Actions en cada PR (install, lint, test, build), .env.example y README. Docker, PostgreSQL, Vercel, Render, SonarQube, Grafana, despliegues, rollback, release-please, Redis y RabbitMQ quedan diferidos."
 
 ## User Scenarios & Testing *(mandatory)*
 
-Actores: **desarrollador** (propone cambios), **revisor** (aprueba cambios), **responsable de release** (autoriza el paso a producción) y **líder del equipo** (sigue la entrega y el aporte del equipo).
+Actores: **desarrollador** del equipo (levanta el proyecto y propone cambios) y **revisor** (aprueba los cambios).
 
-### User Story 1 - Integrar un cambio con controles automáticos (Priority: P1)
+### User Story 1 - Levantar el proyecto en local sin instalar nada extra (Priority: P1)
 
-Un desarrollador propone un cambio. Automáticamente se verifica que cada commit tenga el formato acordado y funcione por sí solo, que el código pase el análisis estático, los tests y el umbral de calidad, y que no introduzca vulnerabilidades ni secretos. El resultado aparece en la propia propuesta de cambio, y la integración queda bloqueada mientras algún control falle.
+Un desarrollador clona el repositorio, sigue el README, instala las dependencias con un solo comando y arranca la API y la web. Al abrir la página de inicio ve que la API está en línea y que la base de datos responde. No necesita Docker ni un servidor de base de datos: solo Node.js y pnpm.
 
-**Why this priority**: sin esta puerta, ninguno de los principios de calidad, seguridad y reversibilidad de la constitución se puede garantizar. Es la base de todo lo demás.
+**Why this priority**: es la base sobre la que el equipo construye las specs 002–004. Si el proyecto no arranca de forma sencilla en todos los equipos, nadie puede avanzar.
 
-**Independent Test**: abrir una propuesta de cambio con un commit correcto y otra con un commit roto o mal nombrado; la primera se puede integrar y la segunda queda bloqueada con el motivo visible.
+**Independent Test**: en un equipo con solo Node.js y pnpm, clonar el repositorio, seguir el README y comprobar que la página de inicio muestra "API en línea" y "Base de datos conectada".
 
 **Acceptance Scenarios**:
 
-1. **Dado** un cambio cuyos commits cumplen el formato, compilan y pasan los tests, **Cuando** el desarrollador abre la propuesta, **Entonces** todos los controles pasan y el cambio se puede integrar tras una aprobación.
-2. **Dado** un cambio con un commit intermedio que no compila, **Cuando** se ejecutan los controles, **Entonces** la integración se bloquea y se indica qué commit falla.
-3. **Dado** un cambio cuya cobertura de tests en el código nuevo está por debajo del umbral, **Cuando** se evalúa la calidad, **Entonces** la integración se bloquea y se muestran las métricas que no se cumplen.
-4. **Dado** un cambio que contiene un secreto o una dependencia con vulnerabilidad crítica, **Cuando** se ejecutan los controles de seguridad, **Entonces** la integración se bloquea.
-5. **Dado** un mensaje de commit que no cumple el formato, **Cuando** el desarrollador intenta crear el commit en su equipo, **Entonces** recibe un aviso inmediato antes de compartirlo.
+1. **Dado** un repositorio recién clonado y un equipo con Node.js y pnpm, **Cuando** el desarrollador ejecuta los pasos del README (copiar `.env.example` a `.env`, instalar, preparar la base de datos y arrancar), **Entonces** la API y la web quedan en ejecución sin errores.
+2. **Dado** la API y la base de datos funcionando, **Cuando** alguien llama a `GET /health`, **Entonces** recibe una respuesta correcta (HTTP 200) que indica que la API y la base de datos están bien.
+3. **Dado** la API funcionando pero sin acceso a la base de datos, **Cuando** alguien llama a `GET /health`, **Entonces** recibe una respuesta de servicio no disponible (HTTP 503) que indica que la base de datos falla.
+4. **Dado** la API y la web en ejecución, **Cuando** el desarrollador abre la página de inicio, **Entonces** ve el estado de la API y de la base de datos en texto legible.
+5. **Dado** la web en ejecución y la API detenida, **Cuando** el desarrollador abre la página de inicio, **Entonces** ve un mensaje claro de que la API no está disponible, en lugar de un error o una pantalla en blanco.
 
 ---
 
-### User Story 2 - Ver el cambio desplegado antes y después de integrarlo (Priority: P1)
+### User Story 2 - Integrar un cambio con controles automáticos (Priority: P1)
 
-Cada propuesta de cambio obtiene un entorno de vista previa, con frontend y backend, donde se ejecutan las pruebas de punta a punta y de accesibilidad y donde el equipo puede revisar el cambio. Al integrarse, el cambio llega solo al entorno de staging, donde se ejecutan pruebas de humo.
+Un desarrollador crea un commit en su equipo; si el mensaje no cumple Conventional Commits, el commit se rechaza al momento. Al abrir un pull request, GitHub Actions instala las dependencias, ejecuta el lint, los tests y el build de todo el monorepo, y muestra el resultado en el propio PR.
 
-**Why this priority**: permite validar con usuarios y pruebas reales antes de producción, y garantiza que staging siempre refleje la rama principal.
+**Why this priority**: sin estos controles no se pueden garantizar los principios VI (calidad verificada) y VII (commits atómicos) de la constitución, ni siquiera en su forma mínima.
 
-**Independent Test**: abrir una propuesta de cambio y comprobar que aparece un enlace a su vista previa; integrarla y comprobar que staging muestra la nueva versión sin intervención manual.
+**Independent Test**: intentar un commit con el mensaje "cambios varios" (debe rechazarse) y otro con "feat(api): añadir endpoint de salud" (debe aceptarse); abrir un PR y comprobar que el pipeline aparece en el PR y termina en verde.
 
 **Acceptance Scenarios**:
 
-1. **Dado** una propuesta de cambio que pasa los controles de US1, **Cuando** termina la construcción, **Entonces** se publica una vista previa y su enlace aparece en la propuesta.
-2. **Dado** una vista previa publicada, **Cuando** se ejecutan las pruebas de punta a punta y de accesibilidad, **Entonces** sus resultados bloquean la integración si fallan.
-3. **Dado** un cambio integrado en la rama principal, **Cuando** termina el proceso, **Entonces** staging ejecuta esa versión y pasa las pruebas de humo.
-4. **Dado** que el despliegue a staging falla, **Cuando** el proceso termina, **Entonces** staging conserva la versión anterior y el equipo recibe una alerta.
+1. **Dado** un mensaje de commit que no cumple Conventional Commits, **Cuando** el desarrollador intenta crear el commit, **Entonces** se rechaza y se le indica qué formato falta.
+2. **Dado** un mensaje de commit válido (p. ej. `feat(api): ...`), **Cuando** el desarrollador crea el commit, **Entonces** se acepta.
+3. **Dado** un pull request con código correcto, **Cuando** se ejecuta el pipeline, **Entonces** los pasos de install, lint, test y build pasan y el PR muestra el check en verde.
+4. **Dado** un pull request con un test de `/health` roto o un error de lint, **Cuando** se ejecuta el pipeline, **Entonces** el check falla y el PR muestra en qué paso.
 
 ---
 
-### User Story 3 - Publicar en producción con aprobación y vuelta atrás automática (Priority: P2)
+### User Story 3 - Continuar con los módulos de las siguientes specs (Priority: P2)
 
-El responsable de release aprueba una versión candidata y esta se publica en producción sin interrumpir el servicio: primero el backend y después el frontend. Si las pruebas de humo posteriores fallan, el sistema vuelve sola a la versión anterior.
+Un desarrollador que va a trabajar en la spec 002, 003 o 004 encuentra ya creada en la API la carpeta del módulo que le corresponde y un paquete de tipos compartidos que puede usar desde la web y la API.
 
-**Why this priority**: necesario antes del lanzamiento real (Fase 6), pero no bloquea el trabajo de desarrollo de las primeras fases.
+**Why this priority**: facilita el reparto del trabajo en el equipo, pero el proyecto funciona sin ello.
 
-**Independent Test**: publicar una versión que pasa las pruebas de humo y otra con un fallo provocado; la primera queda en producción y la segunda se revierte sola.
-
-**Acceptance Scenarios**:
-
-1. **Dado** una versión candidata validada en staging, **Cuando** el responsable de release la aprueba, **Entonces** se publica en producción sin caída del servicio.
-2. **Dado** que nadie ha aprobado la versión, **Cuando** está lista, **Entonces** no llega a producción.
-3. **Dado** una publicación cuyas pruebas de humo fallan, **Cuando** se detecta el fallo, **Entonces** el frontend y el backend vuelven a la versión anterior y se notifica al equipo.
-4. **Dado** una publicación cuya migración de datos falla, **Cuando** se intenta desplegar el backend, **Entonces** el despliegue se cancela y la versión anterior sigue atendiendo.
-5. **Dado** una versión publicada, **Cuando** termina, **Entonces** existe una etiqueta de versión y un registro de cambios generado a partir de los commits.
-
----
-
-### User Story 4 - Revertir cualquier cambio de forma segura (Priority: P2)
-
-Ante un problema, el equipo revierte un commit concreto de la rama principal y el resultado se integra y despliega igual que cualquier otro cambio, sin romper la aplicación ni los datos.
-
-**Why this priority**: es la garantía de reversibilidad del principio VII; sin ella, los commits atómicos pierden su valor.
-
-**Independent Test**: revertir un commit reciente de la rama principal, incluido uno con una migración de datos, y comprobar que la reversión pasa todos los controles y se despliega en staging.
+**Independent Test**: comprobar que existen las carpetas `identidad`, `catalogo` y `carrito` en el código de la API, y que la web y la API importan el mismo tipo de la respuesta de `/health` desde `packages/shared`.
 
 **Acceptance Scenarios**:
 
-1. **Dado** cualquier commit de la rama principal, **Cuando** se revierte, **Entonces** la reversión pasa todos los controles y se despliega.
-2. **Dado** un commit que añadió una migración de datos ya aplicada, **Cuando** el equipo necesita deshacerla, **Entonces** existe una guía y la reversión se hace con una nueva migración que conserva los datos.
-3. **Dado** una funcionalidad incompleta integrada, **Cuando** está desactivada, **Entonces** no es visible ni accesible para los usuarios.
-
----
-
-### User Story 5 - Seguir la entrega y el aporte del equipo (Priority: P3)
-
-El líder del equipo y el propio equipo consultan paneles con las métricas de entrega (frecuencia de despliegue, tiempo desde el primer commit hasta producción, tasa de fallos de los cambios, tiempo de recuperación), el flujo de trabajo, la calidad del código, la salud del proceso de integración y el aporte de cada miembro (cambios integrados, revisiones, tests y documentación).
-
-**Why this priority**: aporta visibilidad y mejora continua, pero el equipo puede trabajar sin ella las primeras semanas.
-
-**Independent Test**: integrar y desplegar un cambio y verificar que aparece en los paneles de entrega y de aporte del equipo.
-
-**Acceptance Scenarios**:
-
-1. **Dado** un despliegue a producción, **Cuando** termina, **Entonces** el panel de entrega lo refleja y lo marca en la línea de tiempo.
-2. **Dado** un miembro que hizo revisiones pero pocos commits, **Cuando** se consulta el panel de aporte, **Entonces** sus revisiones aparecen como aporte con el mismo peso visual que los commits.
-3. **Dado** un usuario sin permiso, **Cuando** intenta abrir el panel de aporte individual, **Entonces** se le niega el acceso.
-4. **Dado** que la rama principal falla o la tasa de aprobación del umbral de calidad baja, **Cuando** se detecta, **Entonces** se alerta al equipo.
+1. **Dado** el repositorio recién clonado, **Cuando** el desarrollador abre el código de la API, **Entonces** encuentra las carpetas de módulo `identidad` (spec 002), `catalogo` (spec 003) y `carrito` (spec 004), cada una con una nota que indica a qué spec pertenece.
+2. **Dado** el tipo de la respuesta de `/health` definido en `packages/shared`, **Cuando** se cambia su forma, **Entonces** la comprobación de tipos falla tanto en la web como en la API hasta que ambas se actualizan.
 
 ### Edge Cases
 
-- Una propuesta de cambio con muchos commits: la verificación commit por commit debe seguir siendo viable en tiempo (ver SC-001).
-- Un test que falla de forma intermitente: se registra como inestable en el panel de salud y no se ignora en silencio.
-- Dos publicaciones a producción aprobadas casi a la vez: se ejecutan en orden, nunca en paralelo.
-- El servicio de análisis de calidad o el de métricas no está disponible: la integración se bloquea (calidad) o continúa y las métricas se envían después (métricas), sin perder datos.
-- Una vista previa de backend no está disponible por el plan contratado: las vistas previas usan el backend de staging.
-- Un cambio solo de documentación: pasa los controles aplicables sin exigir cobertura de código.
+- El archivo `.env` no existe: la API arranca con valores por defecto razonables o indica claramente qué variable falta; el README explica cómo crearlo a partir de `.env.example`.
+- El archivo de la base de datos SQLite aún no existe: el paso de preparación del README lo crea; si se omite, `/health` responde 503 en lugar de bloquear la API.
+- La base de datos tarda en responder: `/health` responde en un tiempo acotado (ver SC-003) en lugar de quedarse colgado.
+- El puerto de la API o de la web ya está en uso: se puede cambiar mediante variables de entorno documentadas en `.env.example`.
+- Git no conserva carpetas vacías: cada carpeta de módulo contiene al menos un archivo (p. ej. un README) para que exista al clonar.
+- Un PR que solo cambia documentación: el pipeline se ejecuta igual y pasa.
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-**Flujo de commits**
-- **FR-001**: El sistema DEBE validar que cada mensaje de commit cumple el formato acordado (tipo, alcance de módulo, descripción), en el equipo del desarrollador y de nuevo en la integración.
-- **FR-002**: El sistema DEBE verificar que cada commit de una propuesta de cambio compila y pasa los tests de los módulos afectados por sí solo.
-- **FR-003**: La rama principal DEBE estar protegida: sin cambios directos, con al menos una aprobación, con todos los controles en verde y con historial lineal que conserve los commits individuales.
-- **FR-004**: El sistema DEBE generar la versión semántica y el registro de cambios a partir de los mensajes de commit.
-- **FR-005**: El proyecto DEBE ofrecer un mecanismo para activar y desactivar funcionalidades sin desplegar, y una guía para escribir migraciones de datos compatibles con la versión anterior.
+**Estructura del monorepo**
+- **FR-001**: El repositorio DEBE ser un monorepo con **pnpm workspaces** con tres paquetes: `apps/web` (Next.js + TypeScript), `apps/api` (NestJS + TypeScript) y `packages/shared` (tipos TypeScript compartidos).
+- **FR-002**: Desde la raíz DEBEN existir comandos únicos para instalar, ejecutar en desarrollo, hacer lint, ejecutar los tests y construir todos los paquetes.
+- **FR-003**: Todo el código DEBE estar en TypeScript. **No se usa Python** en ninguna parte del proyecto, incluidos scripts y herramientas.
+- **FR-004**: La versión de Node.js y de pnpm DEBE estar fijada en el repositorio para que todo el equipo y el pipeline usen las mismas.
 
-**Controles de integración**
-- **FR-006**: El sistema DEBE ejecutar, en cada propuesta de cambio: análisis estático y de tipos, tests unitarios, tests de integración con servicios reales, análisis de seguridad (dependencias, secretos, imágenes) y construcción.
-- **FR-007**: El sistema DEBE evaluar un umbral de calidad sobre el código nuevo con estos mínimos: cobertura ≥ 80 % (≥ 95 % en promociones, pedidos y pagos), 0 bugs y 0 vulnerabilidades nuevos, 100 % de puntos sensibles de seguridad revisados, duplicación < 3 % y calificación máxima en mantenibilidad, fiabilidad y seguridad.
-- **FR-008**: El sistema DEBE bloquear la integración si falla cualquier control y mostrar el motivo en la propuesta de cambio.
-- **FR-009**: El sistema DEBE ejecutar pruebas de punta a punta de los flujos críticos y pruebas automáticas de accesibilidad sobre la vista previa.
+**Base de datos**
+- **FR-005**: `apps/api` DEBE usar **Prisma** como ORM con **SQLite** como base de datos, almacenada en un archivo local, sin necesidad de Docker ni de instalar un servidor de base de datos.
+- **FR-006**: La cadena de conexión DEBE leerse de la variable de entorno `DATABASE_URL`; el archivo de la base de datos NO DEBE subirse al repositorio.
+- **FR-007**: El README DEBE documentar cómo migrar a PostgreSQL cambiando el `provider` del esquema de Prisma y la `DATABASE_URL`, y qué hay que revisar al hacerlo (p. ej. regenerar las migraciones).
 
-**Entornos y despliegue**
-- **FR-010**: El sistema DEBE mantener tres entornos: vista previa (por propuesta de cambio), staging y producción, con datos de prueba, datos anonimizados y datos reales, respectivamente.
-- **FR-011**: Solo el proceso automatizado DEBE poder desplegar; el despliegue automático por cambios en el repositorio y el despliegue manual desde equipos personales quedan desactivados.
-- **FR-012**: El sistema DEBE desplegar exactamente el mismo artefacto que pasó los controles, sin reconstruirlo.
-- **FR-013**: El sistema DEBE desplegar automáticamente en staging cada cambio integrado y ejecutar pruebas de humo.
-- **FR-014**: La publicación en producción DEBE requerir la aprobación explícita de una persona autorizada.
-- **FR-015**: El sistema DEBE aplicar las migraciones de datos antes de activar la nueva versión del backend y cancelar el despliegue si fallan.
-- **FR-016**: El sistema DEBE publicar el backend antes que el frontend y sin interrumpir el servicio.
-- **FR-017**: El sistema DEBE volver automáticamente a la versión anterior de frontend y backend si las pruebas de humo de producción fallan, y notificar al equipo.
-- **FR-018**: El sistema DEBE ejecutar pruebas de carga programadas contra staging, al menos cada noche y antes de cada temporada de festividades.
-- **FR-019**: Los secretos de cada entorno DEBEN gestionarse fuera del repositorio y ser distintos por entorno.
+**Endpoint de salud**
+- **FR-008**: La API DEBE exponer `GET /health`, que comprueba la conexión a la base de datos con una consulta trivial.
+- **FR-009**: Si la API y la base de datos están bien, `GET /health` DEBE responder HTTP 200 con un cuerpo que indique estado `ok` para la API y para la base de datos.
+- **FR-010**: Si la base de datos no responde, `GET /health` DEBE responder HTTP 503 con un cuerpo que indique el fallo de la base de datos, sin exponer detalles internos (rutas, credenciales, trazas).
+- **FR-011**: El tipo de la respuesta de `/health` DEBE definirse una sola vez en `packages/shared` y usarse en la API y en la web.
 
-**Métricas del equipo**
-- **FR-020**: El sistema DEBE recoger datos del repositorio (commits, propuestas de cambio, revisiones), del proceso de integración y despliegue, y del análisis de calidad.
-- **FR-021**: El sistema DEBE ofrecer paneles de: métricas de entrega (las cuatro métricas DORA), flujo de trabajo, calidad, salud del proceso de integración y aporte del equipo.
-- **FR-022**: El panel de aporte DEBE incluir revisiones, tests y documentación además de los commits, y NO DEBE ordenar a los miembros en un ranking.
-- **FR-023**: El acceso al panel de aporte individual DEBE estar restringido a los roles autorizados, y el equipo DEBE ser informado de qué datos se recogen y para qué.
-- **FR-024**: El sistema DEBE alertar al equipo cuando la rama principal falla, cuando cae la tasa de aprobación del umbral de calidad o cuando aumenta la tasa de fallos de los cambios.
+**Página de inicio**
+- **FR-012**: `apps/web` DEBE tener una página de inicio que consulte `GET /health` y muestre el estado de la API y de la base de datos.
+- **FR-013**: Si la API no responde, la página DEBE mostrar un mensaje de "API no disponible" en lugar de fallar.
+- **FR-014**: La URL de la API DEBE configurarse mediante una variable de entorno de la web.
+- **FR-015**: La página DEBE respetar lo básico de WCAG AAA aplicable a su contenido: idioma `es` declarado, contraste de texto ≥ 7:1, el estado comunicado con texto (no solo con color) y anunciado a lectores de pantalla cuando cambia.
+
+**Módulos para las siguientes specs**
+- **FR-016**: `apps/api` DEBE incluir las carpetas de módulo `identidad` (spec 002), `catalogo` (spec 003) y `carrito` (spec 004), sin lógica, cada una con un README que indique su spec.
+
+**Tests**
+- **FR-017**: `apps/api` DEBE tener tests con **Jest** para `GET /health` que cubran al menos el caso correcto (200) y el caso de base de datos caída (503).
+- **FR-018**: Los tests DEBEN poder ejecutarse en local y en el pipeline sin servicios externos.
+
+**Calidad de commits**
+- **FR-019**: El repositorio DEBE configurar **Husky** y **commitlint** para validar en local que cada mensaje de commit cumple **Conventional Commits**, con el módulo o paquete como alcance (p. ej. `feat(api): ...`, `chore(web): ...`).
+- **FR-020**: Husky DEBE instalarse automáticamente al instalar las dependencias, sin pasos manuales.
+
+**Integración continua**
+- **FR-021**: Un workflow de **GitHub Actions** DEBE ejecutarse en cada pull request y ejecutar, en este orden: install (con el lockfile congelado), lint, test y build.
+- **FR-022**: El workflow DEBE fallar si falla cualquiera de esos pasos y su resultado DEBE verse en el PR.
+
+**Configuración y documentación**
+- **FR-023**: El repositorio DEBE incluir un `.env.example` con todas las variables necesarias (al menos `DATABASE_URL`, el puerto de la API y la URL de la API para la web), con valores de ejemplo y sin secretos reales; el `.env` real NO DEBE subirse.
+- **FR-024**: El `README.md` DEBE explicar: requisitos previos (Node.js y pnpm), cómo instalar, configurar `.env`, preparar la base de datos, arrancar la API y la web, ejecutar lint, tests y build, el formato de commits y el paso a PostgreSQL.
+
+### Fuera de alcance (diferido a fases futuras)
+
+Estos elementos de `promtp.md` y `ROADMAP.md` NO forman parte de esta spec y se abordarán en specs posteriores:
+
+- **Docker** y contenedores para desarrollo o despliegue.
+- **PostgreSQL** como base de datos (solo se documenta cómo migrar; ver FR-007).
+- **Redis** y **RabbitMQ** (caché, outbox y colas).
+- Despliegue del frontend en **Vercel** y del backend en **Render** (`render.yaml`).
+- Entornos de **preview, staging y producción**, aprobación manual de releases y **rollback automático**.
+- **release-please** (versionado semántico y changelog automáticos).
+- **SonarQube** y su Quality Gate.
+- **Grafana** y las métricas DORA y del equipo.
+- Validación de commitlint en el pipeline, verificación commit a commit, escaneos de seguridad, tests de integración con Testcontainers, E2E con Playwright y pruebas automáticas de accesibilidad con axe.
+- Feature flags y guía de migraciones expand/contract.
 
 ### Key Entities
 
-- **Propuesta de cambio**: conjunto de commits que se integra en la rama principal; tiene autor, revisores, estado de los controles y vista previa.
-- **Commit**: cambio lógico único con tipo, alcance de módulo y descripción; debe ser reversible.
-- **Ejecución del proceso**: corrida de controles o despliegue con su resultado, duración y control fallido, si lo hay.
-- **Resultado de calidad**: métricas del código nuevo y veredicto del umbral.
-- **Despliegue**: versión publicada en un entorno, con fecha, artefacto, aprobador (en producción) y resultado (correcto, revertido).
-- **Entorno**: vista previa, staging o producción, con su configuración y sus secretos.
-- **Métrica del equipo**: valor agregado por equipo o por persona y periodo.
+- **Estado de salud**: resultado de `GET /health`; indica el estado de la API y de la base de datos (`ok` o `error`). Es el único tipo compartido de esta spec.
+
+No se definen tablas de dominio en esta spec: el esquema de Prisma solo necesita lo mínimo para conectarse a la base de datos.
 
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
-- **SC-001**: El desarrollador conoce el resultado de todos los controles de una propuesta de cambio típica (≤ 10 commits) en menos de 15 minutos.
-- **SC-002**: El 100 % de los commits de la rama principal cumple el formato acordado y pasa sus tests por sí solo.
-- **SC-003**: El 100 % de los cambios integrados pasó el umbral de calidad.
-- **SC-004**: Un cambio integrado está disponible en staging en menos de 20 minutos.
-- **SC-005**: La vuelta atrás automática en producción deja el servicio en la versión anterior en menos de 5 minutos desde la detección del fallo.
-- **SC-006**: Las publicaciones en producción no generan interrupciones del servicio visibles para los clientes.
-- **SC-007**: La reversión de cualquier commit de la rama principal elegido al azar se integra y despliega en staging sin intervención adicional en el 100 % de las pruebas.
-- **SC-008**: Los paneles de métricas reflejan cada despliegue en menos de 1 hora.
-- **SC-009**: Al final de la Fase 0, un cambio mínimo (comprobación de salud y página de inicio) recorre todo el flujo, desde la propuesta hasta staging, y aparece en el panel de entrega.
+- **SC-001**: Un miembro del equipo que no participó en la configuración levanta el proyecto completo en menos de 15 minutos siguiendo solo el README, con únicamente Node.js y pnpm instalados.
+- **SC-002**: La página de inicio muestra el estado correcto en los tres casos: todo bien, base de datos caída y API detenida.
+- **SC-003**: `GET /health` responde en menos de 1 segundo en local, tanto si la base de datos está bien como si falla.
+- **SC-004**: Los tests de `/health` pasan en local y en el pipeline, y el pipeline completo de un PR termina en menos de 10 minutos.
+- **SC-005**: El 100 % de los commits creados en local con Husky instalado cumplen Conventional Commits.
+- **SC-006**: Un PR con un test o un lint roto queda marcado en rojo en el 100 % de los casos.
 
 ## Assumptions
 
-- Restricciones de la constitución (v1.0.0) que este spec no reabre: repositorio y automatización en GitHub (GitHub Actions); umbral de calidad con **SonarQube**; frontend en **Vercel**; backend en **Render**; métricas en **Grafana**; TypeScript sin Python en la aplicación.
-- El equipo cuenta con planes de Vercel y Render que permiten vistas previas, migraciones previas al despliegue y autoescalado; si el plan de Render no permite vistas previas del backend, se usa staging (ver Edge Cases).
-- Grafana Cloud y SonarQube Cloud se usan en su versión gestionada salvo que el equipo decida autohospedarlos (decisión pendiente en `ROADMAP.md`).
-- El equipo tiene entre 2 y 4 personas; los umbrales de tiempo de SC-001 y SC-004 se calibran para ese tamaño.
-- El aporte individual se usa para conversaciones de mejora y reconocimiento, nunca para evaluaciones automáticas.
-- Las pruebas de carga se ejecutan contra staging; nunca contra producción con clientes reales.
+- **Desviación temporal de la constitución (v1.0.0)**: la constitución fija PostgreSQL, Redis, RabbitMQ, Vercel, Render, SonarQube y Grafana, y exige SonarQube y validación commit a commit en el pipeline. Esta spec usa SQLite y difiere esos elementos para cumplir con la entrega universitaria. Según la sección "Restricciones tecnológicas y de plataforma", el cambio de base de datos debería acompañarse de un ADR breve que lo justifique como medida temporal; la constitución sigue vigente para las fases siguientes.
+- El equipo tiene entre 2 y 4 personas, con Windows, macOS o Linux, y puede instalar Node.js (LTS) y pnpm.
+- La API y la web se ejecutan en local en puertos distintos (por defecto 3001 y 3000) y la API permite peticiones desde el origen de la web en desarrollo.
+- El repositorio está en GitHub y GitHub Actions está disponible para el equipo.
+- La protección de la rama `main` (PR obligatorio y check en verde) se configura a mano en GitHub; no forma parte del código.
+- Esta spec no maneja datos personales, por lo que no aplican aún los requisitos de LOPDP.

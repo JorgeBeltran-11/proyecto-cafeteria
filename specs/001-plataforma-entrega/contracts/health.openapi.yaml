@@ -1,0 +1,61 @@
+openapi: 3.1.0
+info:
+  title: Cafetería API — salud
+  version: 0.1.0
+  description: >
+    Contrato de GET /health (spec 001). El esquema HealthResponse es el mismo que
+    `@cafeteria/shared` exporta como tipo TypeScript.
+servers:
+  - url: http://localhost:3001
+paths:
+  /health:
+    get:
+      summary: Estado de la API y de la base de datos
+      operationId: getHealth
+      description: >
+        Ejecuta una consulta trivial contra la base de datos con un timeout de 500 ms.
+        Responde siempre en menos de 1 segundo (SC-003). No requiere autenticación.
+      responses:
+        '200':
+          description: La API y la base de datos están bien.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: ok
+                api: ok
+                database: ok
+                checkedAt: '2026-11-14T15:00:00.000Z'
+        '503':
+          description: >
+            La base de datos no responde, no está preparada o tarda más de 500 ms.
+            El cuerpo no contiene mensajes de error, rutas, credenciales ni trazas.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: error
+                api: ok
+                database: error
+                checkedAt: '2026-11-14T15:00:00.000Z'
+components:
+  schemas:
+    ComponentStatus:
+      type: string
+      enum: [ok, error]
+    HealthResponse:
+      type: object
+      additionalProperties: false
+      required: [status, api, database, checkedAt]
+      properties:
+        status:
+          $ref: '#/components/schemas/ComponentStatus'
+        api:
+          $ref: '#/components/schemas/ComponentStatus'
+        database:
+          $ref: '#/components/schemas/ComponentStatus'
+        checkedAt:
+          type: string
+          format: date-time

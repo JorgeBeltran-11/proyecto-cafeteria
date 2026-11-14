@@ -13,6 +13,15 @@ coverage/
 
 # Entornos y secretos (constitución, principio II)
 .env
+.env.local
 .env.*
 !.env.example
 .vercel/
+
+# Bases de datos SQLite locales
+*.db
+*.db-journal
+
+# TypeScript y logs
+*.tsbuildinfo
+*.log

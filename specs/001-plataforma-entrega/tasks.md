@@ -30,9 +30,9 @@ description: "Lista de tareas de la spec 001 — Stack tecnológico base"
 
 **Purpose**: monorepo pnpm vacío pero válido.
 
-- [ ] T001 Crear la base del monorepo: `package.json` raíz (`"private": true`, `packageManager: "pnpm@10.<x>.<y>"` exacto, `engines.node: ">=22 <23"`, `pnpm.onlyBuiltDependencies: ["prisma", "@prisma/client", "@prisma/engines"]`, scripts `dev` = `pnpm -r --parallel --filter api --filter web dev`, `lint` = `pnpm -r lint && pnpm -r typecheck`, `test` = `pnpm -r test`, `build` = `pnpm -r build`, `db:setup` = `pnpm --filter api db:setup`), `pnpm-workspace.yaml` (`apps/*`, `packages/*`), `.nvmrc` (`22`) y `tsconfig.base.json` (`strict`, `ES2022`, `skipLibCheck`, `declaration`)
-- [ ] T002 [P] Crear `.gitignore` (`node_modules/`, `dist/`, `.next/`, `coverage/`, `.env`, `.env.local`, `*.db`, `*.db-journal`, `*.tsbuildinfo`) y `.gitattributes` (`* text=auto eol=lf`)
-- [ ] T003 [P] Instalar en la raíz `typescript`, `eslint`, `@eslint/js` y `typescript-eslint` como devDependencies y crear `eslint.config.mjs` con la config recomendada de `typescript-eslint`, ignorando `dist/`, `.next/` y `coverage/`
+- [X] T001 Crear la base del monorepo: `package.json` raíz (`"private": true`, `packageManager: "pnpm@10.<x>.<y>"` exacto, `engines.node: ">=22 <23"`, `pnpm.onlyBuiltDependencies: ["prisma", "@prisma/client", "@prisma/engines"]`, scripts `dev` = `pnpm -r --parallel --filter api --filter web dev`, `lint` = `pnpm -r lint && pnpm -r typecheck`, `test` = `pnpm -r test`, `build` = `pnpm -r build`, `db:setup` = `pnpm --filter api db:setup`), `pnpm-workspace.yaml` (`apps/*`, `packages/*`), `.nvmrc` (`22`) y `tsconfig.base.json` (`strict`, `ES2022`, `skipLibCheck`, `declaration`)
+- [X] T002 [P] Crear `.gitignore` (`node_modules/`, `dist/`, `.next/`, `coverage/`, `.env`, `.env.local`, `*.db`, `*.db-journal`, `*.tsbuildinfo`) y `.gitattributes` (`* text=auto eol=lf`)
+- [X] T003 [P] Instalar en la raíz `typescript`, `eslint`, `@eslint/js` y `typescript-eslint` como devDependencies y crear `eslint.config.mjs` con la config recomendada de `typescript-eslint`, ignorando `dist/`, `.next/` y `coverage/`
 
 **Checkpoint**: `pnpm install` termina sin errores y genera `pnpm-lock.yaml`.
 

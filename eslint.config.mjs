@@ -1,0 +1,11 @@
+// Configuración base de ESLint 9 (flat config) para todo el monorepo.
+import js from '@eslint/js';
+import tseslint from 'typescript-eslint';
+
+export default tseslint.config(
+  {
+    ignores: ['**/dist/', '**/.next/', '**/coverage/', '**/node_modules/'],
+  },
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+);

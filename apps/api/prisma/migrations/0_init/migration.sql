@@ -1,0 +1,2 @@
+-- Migración inicial sin tablas de dominio (spec 001).
+-- Al aplicarla, Prisma crea la tabla _prisma_migrations, que consulta GET /health.

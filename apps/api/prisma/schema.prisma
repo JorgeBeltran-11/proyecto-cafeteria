@@ -1,0 +1,12 @@
+// Esquema de Prisma de la API (spec 001, data-model.md).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite" // pasar a "postgresql" en la fase de PostgreSQL
+  url      = env("DATABASE_URL")
+}
+
+// Sin modelos: los añaden las specs 002 (identidad), 003 (catalogo) y 004 (carrito).

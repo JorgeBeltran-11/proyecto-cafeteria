@@ -96,7 +96,7 @@ description: "Lista de tareas de la spec 001 — Stack tecnológico base"
 
 **Independent Test**: existen las tres carpetas de módulo; cambiar la forma de `HealthResponse` hace fallar `pnpm lint` en `api` y en `web` (quickstart §5).
 
-- [ ] T018 [P] [US3] Crear las carpetas de módulo sin lógica, cada una con un `README.md` (Git no guarda carpetas vacías) que indica el módulo, su spec y que solo accede a su propio esquema: `apps/api/src/modules/identidad/README.md` (spec `002-identidad-clientes`), `apps/api/src/modules/catalogo/README.md` (spec `003-menu-dinamico`) y `apps/api/src/modules/carrito/README.md` (spec `004-carrito-compras`)
+- [X] T018 [P] [US3] Crear las carpetas de módulo sin lógica, cada una con un `README.md` (Git no guarda carpetas vacías) que indica el módulo, su spec y que solo accede a su propio esquema: `apps/api/src/modules/identidad/README.md` (spec `002-identidad-clientes`), `apps/api/src/modules/catalogo/README.md` (spec `003-menu-dinamico`) y `apps/api/src/modules/carrito/README.md` (spec `004-carrito-compras`)
 
 **Checkpoint**: las tres carpetas existen en un clon limpio; renombrar temporalmente `checkedAt` a `checked_at` en `packages/shared/src/index.ts` y ejecutar `pnpm --filter @cafeteria/shared build && pnpm lint` falla en `api` y en `web` (revertir después).
 

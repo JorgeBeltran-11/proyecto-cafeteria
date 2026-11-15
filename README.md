@@ -71,6 +71,43 @@ Para cambiar los puertos:
 - **API**: cambia `PORT` en `apps/api/.env` (y `NEXT_PUBLIC_API_URL` en `apps/web/.env.local` para que la web la encuentre).
 - **Web**: define `PORT` al arrancar, por ejemplo `PORT=4000 pnpm --filter web dev` en bash o `$env:PORT=4000; pnpm --filter web dev` en PowerShell. Después cambia `WEB_ORIGIN` en `apps/api/.env` para que CORS lo permita.
 
+## Formato de commits
+
+Los mensajes siguen [Conventional Commits](https://www.conventionalcommits.org/es/) con **alcance obligatorio**:
+
+```text
+tipo(alcance): descripción en minúsculas
+```
+
+Husky ejecuta commitlint en cada `git commit` (hook `.husky/commit-msg`, se activa solo con `pnpm install`) y rechaza el commit si el mensaje no cumple el formato. Las reglas están en `commitlint.config.ts`.
+
+- **Tipos**: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
+- **Alcances permitidos**: `repo`, `ci`, `deps`, `docs`, `api`, `web`, `shared`, `plataforma`, `identidad`, `catalogo`, `carrito`, `specs`. Al crear un módulo nuevo, añade su nombre a `scope-enum` en `commitlint.config.ts`.
+
+| Mensaje | ¿Válido? | Motivo |
+|---------|----------|--------|
+| `feat(api): añadir endpoint de salud` | ✅ | |
+| `fix(web): mostrar el estado cuando la API tarda` | ✅ | |
+| `ci(repo): añadir workflow de GitHub Actions para PR` | ✅ | |
+| `cambios varios` | ❌ | Sin tipo ni alcance |
+| `feat: añadir endpoint de salud` | ❌ | Falta el alcance |
+| `feat(pagos): añadir tarjeta` | ❌ | `pagos` no está en la lista de alcances |
+| `Feat(api): Añadir endpoint` | ❌ | El tipo va en minúsculas y la descripción no empieza en mayúscula |
+
+Cada commit debe ser atómico (un cambio lógico) y pasar `pnpm lint`, `pnpm test` y `pnpm build` por sí solo.
+
+## Calidad
+
+| Comando | Qué hace |
+|---------|----------|
+| `pnpm lint` | ESLint y comprobación de tipos (`tsc --noEmit`) en todos los paquetes |
+| `pnpm test` | Jest en la API: tests unitarios de `/health` y tests HTTP con una base de datos SQLite real y temporal (no hace falta `.env` ni `dev.db`) |
+| `pnpm build` | Compila `@cafeteria/shared`, la API y la web |
+
+Para ejecutar un solo archivo de test: `pnpm --filter api exec jest src/health/health.service.spec.ts` (unitario) o `pnpm --filter api exec jest --config test/jest-e2e.json health` (HTTP).
+
+**Pipeline**: en cada pull request (y en cada push a `main`), GitHub Actions ejecuta `.github/workflows/ci.yml` en `ubuntu-latest` con los pasos **Install** (`pnpm install --frozen-lockfile`), **Lint**, **Test** y **Build**, con un límite de 10 minutos. Si un paso falla, el check **CI** del PR se pone en rojo e indica cuál.
+
 ## Solución de problemas
 
 | Síntoma | Causa | Solución |

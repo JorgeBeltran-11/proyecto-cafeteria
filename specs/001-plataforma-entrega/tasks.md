@@ -104,8 +104,8 @@ description: "Lista de tareas de la spec 001 — Stack tecnológico base"
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T019 [P] Completar `README.md` con "Paso a PostgreSQL" (FR-007: cambiar `provider` en `apps/api/prisma/schema.prisma` y `DATABASE_URL`, borrar `apps/api/prisma/migrations/`, regenerar con `prisma migrate dev --name init` y revisar la consulta de `/health`; solo documentación), "Estructura del repositorio" y la nota de configurar a mano la protección de `main` en GitHub
-- [ ] T020 Validar desde un clon limpio (sin `node_modules`, `.env` ni `dev.db`) siguiendo `specs/001-plataforma-entrega/quickstart.md` de principio a fin y cronometrar (SC-001 < 15 min); comprobar que `git ls-files` no incluye archivos `.py`, `.env` ni `*.db`
+- [X] T019 [P] Completar `README.md` con "Paso a PostgreSQL" (FR-007: cambiar `provider` en `apps/api/prisma/schema.prisma` y `DATABASE_URL`, borrar `apps/api/prisma/migrations/`, regenerar con `prisma migrate dev --name init` y revisar la consulta de `/health`; solo documentación), "Estructura del repositorio" y la nota de configurar a mano la protección de `main` en GitHub
+- [X] T020 Validar desde un clon limpio (sin `node_modules`, `.env` ni `dev.db`) siguiendo `specs/001-plataforma-entrega/quickstart.md` de principio a fin y cronometrar (SC-001 < 15 min); comprobar que `git ls-files` no incluye archivos `.py`, `.env` ni `*.db`
 
 **Checkpoint**: todos los criterios SC-001 a SC-006 de `spec.md` verificados.
 

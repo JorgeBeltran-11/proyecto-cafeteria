@@ -13,7 +13,7 @@
     "db:setup": "prisma migrate deploy",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "jest --passWithNoTests && jest --config test/jest-e2e.json --passWithNoTests"
+    "test": "jest && jest --config test/jest-e2e.json"
   },
   "dependencies": {
     "@cafeteria/shared": "workspace:*",

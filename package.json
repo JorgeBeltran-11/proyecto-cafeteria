@@ -10,7 +10,8 @@
     "lint": "pnpm -r lint && pnpm -r typecheck",
     "test": "pnpm -r test",
     "build": "pnpm -r build",
-    "db:setup": "pnpm --filter api db:setup"
+    "db:setup": "pnpm --filter api db:setup",
+    "prepare": "husky"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -20,8 +21,12 @@
     ]
   },
   "devDependencies": {
+    "@commitlint/cli": "21.2.4",
+    "@commitlint/config-conventional": "21.2.4",
+    "@commitlint/types": "21.2.3",
     "@eslint/js": "9.39.5",
     "eslint": "9.39.5",
+    "husky": "9.1.7",
     "typescript": "5.9.3",
     "typescript-eslint": "8.72.2"
   }

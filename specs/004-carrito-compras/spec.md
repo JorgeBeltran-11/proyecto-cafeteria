@@ -2,7 +2,8 @@
 
 **Feature Branch**: `004-carrito-compras`
 **Created**: 2026-11-12
-**Status**: Draft
+**Status**: Acotada (ver *Alcance en este equipo*)
+**Responsable**: David León · **Rama**: `feature/spec-4`
 **Input**: User description: "RF-03 Carrito de compras: un carrito activo por cliente, persistente entre sesiones y dispositivos; agregar, quitar y cambiar cantidades de varios productos; muestra el precio con descuentos aplicados y avisa si un producto dejó de estar disponible o cambió de precio."
 
 ## User Scenarios & Testing *(mandatory)*
@@ -102,3 +103,29 @@ Si un producto del carrito se agota, se retira o cambia de precio, o una promoci
 - Las existencias no se reservan al añadir al carrito, sino al confirmar el pedido (spec 006).
 - El cálculo de descuentos lo define el spec 005; este spec solo muestra su resultado.
 - Los límites por defecto son 20 unidades por producto y 50 por carrito, configurables por el administrador.
+
+## Alcance en este equipo *(acotado el 2026-11-16)*
+
+El equipo implementa las specs 001 (Jorge Beltrán), 002 (Leonardo Mendieta), 003 (Julio Maldonado) y 004 (David León). Las specs 005–008 no tienen responsable, y las 002 y 003 se desarrollan a la vez que esta. Para no bloquear el trabajo, el carrito depende de **interfaces** (puertos) y no de los módulos de los demás. Mientras esos módulos no existan, cada interfaz tiene una implementación **provisional**, marcada en el código con `PENDIENTE(spec-00X)`.
+
+### Dependencias
+
+| Necesita | Lo da | Estado | Implementación provisional |
+|---|---|---|---|
+| Identificar al cliente de la sesión | Spec 002 (identidad) | PENDIENTE | Cabecera `X-Cliente-Id`, solo fuera de producción |
+| Nombre, precio, existencias, disponibilidad y horario de los productos | Spec 003 (catálogo) | PENDIENTE | Catálogo en memoria con productos de prueba |
+| Descuentos y fin de promociones | Spec 005 (promociones) | Sin responsable | Calculador de precios que no aplica descuentos (0) |
+| Confirmar el pedido | Spec 006 (pedidos) | Sin responsable | El carrito expone `sePuedeConfirmar` y sus motivos |
+| Límites configurables por el administrador | Spec 008 (administración) | Sin responsable | Variables de entorno con los valores por defecto |
+
+El contrato de cada interfaz está en [`contracts/dependencias.md`](./contracts/dependencias.md); cuando el módulo real exista, se sustituye la implementación provisional sin tocar el resto del carrito.
+
+### Ajustes a los requisitos
+
+- **FR-004 y US1-4**: se muestran precio base, descuento y precio final; con el calculador provisional el descuento es siempre 0. Cumplimiento completo cuando exista la spec 005.
+- **US3-3 (aviso de fin de promoción)**: el tipo de aviso existe en el contrato, pero no se genera hasta la spec 005.
+- **FR-007**: el carrito no confirma pedidos (spec 006). Cumple su parte exponiendo `sePuedeConfirmar: false` y los motivos cuando hay productos no disponibles; la spec 006 debe respetarlo.
+- **FR-002 (deshacer)**: se resuelve en la web: guarda la última línea eliminada y la vuelve a añadir.
+- **FR-003 y SC-002 (varios dispositivos)**: el carrito se guarda en la base de datos y la web lo vuelve a pedir al recuperar el foco y cada pocos segundos mientras está visible; no se usan Redis ni WebSockets (diferidos por la spec 001).
+- **FR-003 (30 días)**: el vaciado se hace al leer el carrito (caducidad perezosa), sin tareas programadas.
+- **FR-008**: límite por producto = mínimo entre las existencias y el máximo configurado (20); límite por carrito = 50 unidades.

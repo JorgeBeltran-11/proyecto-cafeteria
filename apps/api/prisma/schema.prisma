@@ -9,4 +9,30 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Sin modelos: los añaden las specs 002 (identidad), 003 (catalogo) y 004 (carrito).
+// Cada spec añade aquí sus modelos: 002 (identidad), 003 (catalogo) y 004 (carrito).
+
+// ---------------------------------------------------------------------------
+// Módulo carrito (spec 004, data-model.md). Tablas propiedad exclusiva del módulo.
+// clienteId y productoId son ids de identidad y catálogo: sin claves foráneas
+// hacia sus tablas, porque cada módulo es dueño de su esquema (constitución V).
+// ---------------------------------------------------------------------------
+
+model Carrito {
+  id            String         @id @default(cuid())
+  clienteId     String         @unique
+  actualizadoEn DateTime
+  lineas        LineaCarrito[]
+}
+
+model LineaCarrito {
+  id                  String   @id @default(cuid())
+  carritoId           String
+  productoId          String
+  cantidad            Int
+  /// Precio que vio el cliente al añadir la línea o al aceptar el último cambio.
+  precioVistoCentavos Int
+  anadidaEn           DateTime
+  carrito             Carrito  @relation(fields: [carritoId], references: [id], onDelete: Cascade)
+
+  @@unique([carritoId, productoId])
+}

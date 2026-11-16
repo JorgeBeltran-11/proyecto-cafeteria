@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { HealthStatus } from "./health-status";
 
 export default function Home() {
@@ -5,6 +6,9 @@ export default function Home() {
     <main>
       <h1>Proyecto cafetería</h1>
       <HealthStatus />
+      <p>
+        <Link href="/carrito">Ir a tu carrito</Link>
+      </p>
     </main>
   );
 }

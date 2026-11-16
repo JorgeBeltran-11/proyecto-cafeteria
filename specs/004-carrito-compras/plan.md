@@ -72,7 +72,8 @@ apps/api/src/modules/carrito/
 ├── validacion.ts                         # Validación de cuerpos y parámetros
 ├── dominio/
 │   ├── reglas.ts                         # Funciones puras: límites, avisos, totales, caducidad
-│   └── reglas.spec.ts
+│   ├── reglas.spec.ts
+│   └── errores.ts                        # ErrorCarrito (códigos de negocio)
 ├── puertos/
 │   ├── catalogo.puerto.ts                # PENDIENTE(spec-003): lo implementa catálogo
 │   ├── descuentos.puerto.ts              # PENDIENTE(spec-005)
@@ -108,11 +109,15 @@ Cada commit pasa `pnpm lint && pnpm test && pnpm build` por sí solo.
 3. `docs(specs): agregar tareas de la spec 004`
 4. `feat(shared): agregar tipos del carrito`
 5. `feat(carrito): agregar modelos Carrito y LineaCarrito`
-6. `feat(carrito): agregar reglas de cálculo del carrito`
-7. `feat(carrito): agregar puertos y piezas provisionales`
-8. `feat(carrito): exponer la API del carrito`
-9. `feat(web): agregar la vista accesible del carrito`
-10. `docs(carrito): documentar el módulo y sus pendientes`
+6. `feat(carrito): agregar puertos hacia catálogo, sesión y descuentos`
+7. `feat(carrito): agregar reglas de cálculo del carrito`
+8. `feat(carrito): agregar repositorio del carrito`
+9. `feat(carrito): agregar piezas provisionales de catálogo, sesión y descuentos`
+10. `feat(carrito): exponer la API del carrito`
+11. `feat(web): agregar la vista accesible del carrito`
+12. `docs(carrito): documentar el módulo y sus pendientes`
+
+Los puertos van antes que las reglas porque estas usan el tipo `ProductoParaCarrito`.
 
 ## Complexity Tracking
 

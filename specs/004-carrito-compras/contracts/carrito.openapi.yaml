@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: API del carrito (spec 004)
-  version: 0.1.0
+  version: 0.2.0
   description: |
     Todas las rutas actúan sobre el carrito del cliente de la sesión.
     PENDIENTE(spec-002): hoy el cliente se identifica con la cabecera X-Cliente-Id
@@ -93,44 +93,6 @@ paths:
         '200': { $ref: '#/components/responses/Carrito' }
         '401': { $ref: '#/components/responses/Error' }
 
-  # PENDIENTE(spec-003): rutas provisionales, desaparecen con el catálogo real.
-  /catalogo-provisional/productos:
-    get:
-      summary: Productos de prueba (solo fuera de producción)
-      responses:
-        '200':
-          description: Lista de productos
-          content:
-            application/json:
-              schema:
-                type: array
-                items: { $ref: '#/components/schemas/ProductoProvisional' }
-  /catalogo-provisional/productos/{productoId}:
-    patch:
-      summary: Cambiar precio, estado o existencias de un producto de prueba, para probar los avisos
-      parameters:
-        - name: productoId
-          in: path
-          required: true
-          schema: { $ref: '#/components/schemas/ProductoId' }
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                precioCentavos: { type: integer, minimum: 0 }
-                estado: { enum: [disponible, agotado, retirado] }
-                existencias: { type: [integer, 'null'], minimum: 0 }
-                enHorario: { type: boolean }
-      responses:
-        '200':
-          description: Producto actualizado
-          content: { application/json: { schema: { $ref: '#/components/schemas/ProductoProvisional' } } }
-        '400': { $ref: '#/components/responses/Error' }
-        '404': { $ref: '#/components/responses/Error' }
-
 components:
   parameters:
     ClienteId:
@@ -200,15 +162,6 @@ components:
         solicitada: { type: integer }
         aplicada: { type: integer }
         motivo: { type: string }
-    ProductoProvisional:
-      type: object
-      properties:
-        id: { $ref: '#/components/schemas/ProductoId' }
-        nombre: { type: string }
-        precioCentavos: { $ref: '#/components/schemas/Centavos' }
-        estado: { enum: [disponible, agotado, retirado] }
-        existencias: { type: [integer, 'null'] }
-        enHorario: { type: boolean }
     Error:
       type: object
       properties:

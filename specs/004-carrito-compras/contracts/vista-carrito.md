@@ -4,7 +4,7 @@
 
 1. Encabezado `h1` "Tu carrito".
 2. **PENDIENTE(spec-002)**: campo "Cliente de prueba" (id que se envía en `X-Cliente-Id`). Abrir la misma página con el mismo id en dos navegadores simula dos dispositivos.
-3. **PENDIENTE(spec-003)**: sección "Productos de prueba", con un botón "Añadir" por producto.
+3. Sección "Añadir del menú": los productos de la carta publicada (spec 003) con su texto de disponibilidad y un botón "Añadir" (no en los agotados), y un enlace a la carta completa.
 4. Lista de líneas: nombre, precio unitario, cantidad con botones "−" y "+" y un campo numérico, total de la línea (y el descuento, si lo hay) y botón "Quitar".
 5. Avisos, encima de los totales, con su texto completo (p. ej. "El precio de Capuchino cambió de $2,50 a $2,80") y el botón "Aceptar precios nuevos" cuando hay cambios de precio.
 6. Resumen: subtotal, descuento y total, en una lista de definiciones (`dl`).

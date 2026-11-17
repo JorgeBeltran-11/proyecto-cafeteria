@@ -39,7 +39,7 @@ description: "Lista de tareas de la spec 004 — Carrito de compras"
 - [X] T009 [US1] `CarritoService` (`ver`, `anadir`, `cambiarCantidad`, `quitar`, `vaciar`) con tests en `carrito.service.spec.ts`
 - [X] T010 [US1] Validación de entrada en `validacion.ts` y errores de dominio → HTTP en `carrito.errores.ts`
 - [X] T011 [US1] `CarritoController` (`/carrito`) y `CarritoModule`, registrado en `app.module.ts`; tests HTTP en `carrito.controller.spec.ts`
-- [X] T012 [US1] PENDIENTE(spec-003) `CatalogoProvisional` y su controlador `/catalogo-provisional/productos`
+- [X] T012 [US1] `CatalogoProvisional` y su controlador `/catalogo-provisional/productos` (retirados en T025)
 - [X] T013 [US1] PENDIENTE(spec-005) `SinDescuentos`
 - [X] T014 [US1] PENDIENTE(spec-002) `SesionProvisionalGuard` (cabecera `X-Cliente-Id`, 401 en producción)
 - [X] T015 [US1] Página `apps/web/app/carrito/` con añadir, cambiar cantidad, quitar, deshacer y vaciar, y anuncios `aria-live` (contracts/vista-carrito.md)
@@ -63,7 +63,7 @@ description: "Lista de tareas de la spec 004 — Carrito de compras"
 
 - [X] T023 README del módulo con los pendientes y actualización del README raíz
 - [ ] T024 Prueba manual con VoiceOver o NVDA según `contracts/vista-carrito.md`
-- [ ] T025 PENDIENTE(spec-003) Sustituir `CatalogoProvisional` por el catálogo real (ver `contracts/dependencias.md` §1)
+- [X] T025 Sustituir `CatalogoProvisional` por el catálogo real (`CatalogoModule`), con e2e contra el catálogo y la web añadiendo desde la carta publicada
 - [ ] T026 PENDIENTE(spec-002) Sustituir `SesionProvisionalGuard` por el guard de identidad y llamar a `eliminarDeCliente` al borrar una cuenta (§2)
 
 ## Dependencies

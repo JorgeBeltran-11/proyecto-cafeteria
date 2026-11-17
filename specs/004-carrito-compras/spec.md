@@ -113,7 +113,7 @@ El equipo implementa las specs 001 (Jorge Beltrán), 002 (Leonardo Mendieta), 00
 | Necesita | Lo da | Estado | Implementación provisional |
 |---|---|---|---|
 | Identificar al cliente de la sesión | Spec 002 (identidad) | PENDIENTE | Cabecera `X-Cliente-Id`, solo fuera de producción |
-| Nombre, precio, existencias, disponibilidad y horario de los productos | Spec 003 (catálogo) | PENDIENTE | Catálogo en memoria con productos de prueba |
+| Nombre, precio, existencias, disponibilidad y horario de los productos | Spec 003 (catálogo) | **Integrada** (2026-11-16) | — (se usa `CatalogoModule`) |
 | Descuentos y fin de promociones | Spec 005 (promociones) | Sin responsable | Calculador de precios que no aplica descuentos (0) |
 | Confirmar el pedido | Spec 006 (pedidos) | Sin responsable | El carrito expone `sePuedeConfirmar` y sus motivos |
 | Límites configurables por el administrador | Spec 008 (administración) | Sin responsable | Variables de entorno con los valores por defecto |

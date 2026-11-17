@@ -10,7 +10,7 @@ grep -rn "PENDIENTE(spec-" apps/
 
 ---
 
-## 1. Catálogo → carrito (spec 003, Julio Maldonado) · PENDIENTE
+## 1. Catálogo → carrito (spec 003, Julio Maldonado) · INTEGRADO
 
 El carrito necesita leer algunos datos de varios productos a la vez. Archivo: `apps/api/src/modules/carrito/puertos/catalogo.puerto.ts`.
 
@@ -49,7 +49,7 @@ export abstract class CatalogoParaCarrito {
 2. Usar el mismo `id` de producto que verá la web en el menú.
 3. Guardar los precios en centavos enteros (constitución VI).
 
-**Qué cambia en el carrito cuando esté listo:** en `carrito.module.ts`, importar `CatalogoModule` y quitar la línea `{ provide: CatalogoParaCarrito, useExisting: CatalogoProvisional }`, junto con `provisional/catalogo-provisional*.ts`. La web deja de usar `/catalogo-provisional/productos` y añade productos desde el menú real.
+**Hecho:** `CatalogoService` implementa el puerto y `CatalogoModule` lo exporta; `CarritoModule` importa `CatalogoModule` y el catálogo provisional se retiró. La web añade productos desde la carta publicada (`GET /catalogo/menu`).
 
 ---
 

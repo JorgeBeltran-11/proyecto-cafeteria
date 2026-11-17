@@ -1,5 +1,6 @@
 import { Logger, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { CatalogoModule } from '../catalogo/catalogo.module';
 import { CarritoController } from './carrito.controller';
 import {
   CarritoService,
@@ -8,10 +9,7 @@ import {
   type Reloj,
 } from './carrito.service';
 import { LIMITES_POR_DEFECTO, type LimitesCarrito } from './dominio/reglas';
-import { CatalogoProvisional } from './provisional/catalogo-provisional';
-import { CatalogoProvisionalController } from './provisional/catalogo-provisional.controller';
 import { SinDescuentos } from './provisional/sin-descuentos';
-import { CatalogoParaCarrito } from './puertos/catalogo.puerto';
 import { CalculadorDescuentos } from './puertos/descuentos.puerto';
 import { CarritoRepositorio } from './repositorio/carrito.repositorio';
 import { PrismaCarritoRepositorio } from './repositorio/prisma-carrito.repositorio';
@@ -54,17 +52,13 @@ export function leerLimites(config: ConfigService): LimitesCarrito {
   };
 }
 
+/** El catálogo (spec 003) aporta `CatalogoParaCarrito`: contracts/dependencias.md §1. */
 @Module({
-  controllers: [
-    CarritoController,
-    CatalogoProvisionalController, // PENDIENTE(spec-003)
-  ],
+  imports: [CatalogoModule],
+  controllers: [CarritoController],
   providers: [
     CarritoService,
     { provide: CarritoRepositorio, useClass: PrismaCarritoRepositorio },
-    CatalogoProvisional, // PENDIENTE(spec-003)
-    // PENDIENTE(spec-003): importar CatalogoModule y borrar esta línea.
-    { provide: CatalogoParaCarrito, useExisting: CatalogoProvisional },
     // PENDIENTE(spec-005): sustituir por el calculador del módulo de promociones.
     { provide: CalculadorDescuentos, useClass: SinDescuentos },
     { provide: LIMITES_CARRITO, inject: [ConfigService], useFactory: leerLimites },

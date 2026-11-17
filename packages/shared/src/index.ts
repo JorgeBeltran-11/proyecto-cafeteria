@@ -19,3 +19,22 @@ export type {
   LineaCarritoVista,
   TipoAvisoCarrito,
 } from './carrito';
+
+export type {
+  Alergeno,
+  AlergenoVista,
+  CartaPublica,
+  CategoriaBorrador,
+  CategoriaPublica,
+  DiaSemana,
+  DisponibilidadProducto,
+  DisponibilidadVista,
+  EstadoMenu,
+  FranjaHoraria,
+  Horario,
+  MenuAdmin,
+  MenuPublico,
+  ProductoAdmin,
+  ProductoPublico,
+  VersionMenuResumen,
+} from './catalogo';

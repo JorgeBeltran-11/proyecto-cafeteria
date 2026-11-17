@@ -1,30 +1,78 @@
 import type { CarritoVista } from '@cafeteria/shared';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import type { App } from 'supertest/types';
+import { CatalogoModule } from '../catalogo/catalogo.module';
 import { CarritoModule } from './carrito.module';
-import { CatalogoProvisional } from './provisional/catalogo-provisional';
+import {
+  CatalogoParaCarrito,
+  type ProductoParaCarrito,
+} from './puertos/catalogo.puerto';
 import { CarritoRepositorio } from './repositorio/carrito.repositorio';
 import { MemoriaCarritoRepositorio } from './repositorio/memoria-carrito.repositorio';
 
-/** Tests HTTP del carrito sin base de datos: el repositorio se sustituye por uno en memoria. */
+/** Catálogo en memoria con los mismos productos que el menú de ejemplo de la spec 003. */
+class CatalogoFalso extends CatalogoParaCarrito {
+  readonly productos = new Map<string, ProductoParaCarrito>();
+
+  constructor() {
+    super();
+    const base = { estado: 'disponible' as const, existencias: null, enHorario: true };
+    for (const p of [
+      { ...base, id: 'cafe-americano', nombre: 'Café americano', precioCentavos: 150 },
+      { ...base, id: 'capuchino', nombre: 'Capuchino', precioCentavos: 250 },
+      { ...base, id: 'croissant', nombre: 'Croissant', precioCentavos: 185, existencias: 5 },
+      { ...base, id: 'jugo-naranja', nombre: 'Jugo de naranja', precioCentavos: 300, estado: 'agotado' as const },
+    ]) {
+      this.productos.set(p.id, p);
+    }
+  }
+
+  cambiar(id: string, cambios: Partial<ProductoParaCarrito>): void {
+    const actual = this.productos.get(id);
+    if (actual) this.productos.set(id, { ...actual, ...cambios });
+  }
+
+  obtenerProductos(ids: readonly string[]): Promise<ProductoParaCarrito[]> {
+    return Promise.resolve(
+      ids.flatMap((id) => {
+        const p = this.productos.get(id);
+        return p ? [{ ...p }] : [];
+      }),
+    );
+  }
+}
+
+/**
+ * Tests HTTP del carrito sin base de datos: el repositorio se sustituye por uno en memoria
+ * y el módulo del catálogo por uno falso (la integración real está en test/carrito.e2e-spec.ts).
+ */
 describe('API /carrito', () => {
   let app: INestApplication<App>;
+  let catalogo: CatalogoFalso;
   const CLIENTE = { 'X-Cliente-Id': 'cliente-http' };
 
   beforeEach(async () => {
+    catalogo = new CatalogoFalso();
+    @Module({
+      providers: [{ provide: CatalogoParaCarrito, useValue: catalogo }],
+      exports: [CatalogoParaCarrito],
+    })
+    class CatalogoFalsoModule {}
+
     const moduleRef = await Test.createTestingModule({
       imports: [
         ConfigModule.forRoot({ isGlobal: true, ignoreEnvFile: true }),
         CarritoModule,
       ],
     })
+      .overrideModule(CatalogoModule)
+      .useModule(CatalogoFalsoModule)
       .overrideProvider(CarritoRepositorio)
       .useValue(new MemoriaCarritoRepositorio())
       .compile();
-    moduleRef.get(CatalogoProvisional).reiniciar();
     app = moduleRef.createNestApplication<INestApplication<App>>();
     await app.init();
   });
@@ -146,16 +194,13 @@ describe('API /carrito', () => {
       .expect(404);
   });
 
-  it('avisa del cambio de precio del catálogo provisional y permite aceptarlo', async () => {
+  it('avisa del cambio de precio del catálogo y permite aceptarlo', async () => {
     await http()
       .post('/carrito/lineas')
       .set(CLIENTE)
       .send({ productoId: 'capuchino' })
       .expect(200);
-    await http()
-      .patch('/catalogo-provisional/productos/capuchino')
-      .send({ precioCentavos: 280 })
-      .expect(200);
+    catalogo.cambiar('capuchino', { precioCentavos: 280 });
 
     let res = await http().get('/carrito').set(CLIENTE).expect(200);
     let vista = res.body as CarritoVista;
@@ -170,16 +215,5 @@ describe('API /carrito', () => {
     vista = res.body as CarritoVista;
     expect(vista.avisos).toEqual([]);
     expect(vista.sePuedeConfirmar).toBe(true);
-  });
-
-  it('el catálogo provisional valida los cambios', async () => {
-    await http()
-      .patch('/catalogo-provisional/productos/capuchino')
-      .send({ estado: 'roto' })
-      .expect(400);
-    await http()
-      .patch('/catalogo-provisional/productos/no-existe')
-      .send({ precioCentavos: 100 })
-      .expect(404);
   });
 });

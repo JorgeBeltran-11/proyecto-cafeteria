@@ -1,9 +1,9 @@
 /**
  * Lo que el carrito necesita del catálogo (contracts/dependencias.md §1).
  *
- * PENDIENTE(spec-003): el módulo `catalogo` implementa esta clase y la exporta con
- * `{ provide: CatalogoParaCarrito, useExisting: CatalogoService }`. Mientras no exista,
- * `CarritoModule` usa `CatalogoProvisional` (carpeta provisional/).
+ * Lo implementa el módulo `catalogo` (spec 003) con
+ * `{ provide: CatalogoParaCarrito, useExisting: CatalogoService }` y lo exporta;
+ * `CarritoModule` lo recibe al importar `CatalogoModule`.
  */
 
 export type EstadoProducto = 'disponible' | 'agotado' | 'retirado';

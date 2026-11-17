@@ -2,7 +2,8 @@
 
 import type { CarritoVista, LineaCarritoVista } from "@cafeteria/shared";
 import { type FormEvent, useCallback, useEffect, useRef, useState } from "react";
-import { apiCarrito, dinero, ErrorApi, type ProductoDePrueba } from "./api";
+import Link from "next/link";
+import { apiCarrito, dinero, ErrorApi, type ProductoDelMenu } from "./api";
 
 /** PENDIENTE(spec-002): cliente de prueba hasta que exista el inicio de sesión. */
 const CLIENTE_POR_DEFECTO = "cliente-demo";
@@ -19,12 +20,6 @@ interface LineaEliminada {
   cantidad: number;
 }
 
-const ESTADO_PRODUCTO: Record<ProductoDePrueba["estado"], string> = {
-  disponible: "Disponible",
-  agotado: "Agotado",
-  retirado: "Retirado",
-};
-
 function mensajeDeError(error: unknown): string {
   return error instanceof ErrorApi ? error.message : "Ocurrió un error inesperado. Inténtalo de nuevo.";
 }
@@ -35,7 +30,7 @@ export function Carrito() {
   const [errorCliente, setErrorCliente] = useState<string | null>(null);
   const [vista, setVista] = useState<CarritoVista | null>(null);
   const [errorCarga, setErrorCarga] = useState<string | null>(null);
-  const [productos, setProductos] = useState<ProductoDePrueba[]>([]);
+  const [productos, setProductos] = useState<ProductoDelMenu[]>([]);
   const [anuncio, setAnuncio] = useState("");
   const [eliminada, setEliminada] = useState<LineaEliminada | null>(null);
 
@@ -111,7 +106,7 @@ export function Carrito() {
   const cargarProductos = useCallback(
     () =>
       apiCarrito
-        .productosDePrueba()
+        .productosDelMenu()
         .then(setProductos)
         .catch(() => setProductos([])),
     [],
@@ -157,7 +152,7 @@ export function Carrito() {
     return `Total: ${dinero(v.totalCentavos)}.`;
   }
 
-  function anadir(producto: ProductoDePrueba) {
+  function anadir(producto: ProductoDelMenu) {
     void ejecutar(
       () => apiCarrito.anadir(clienteId, producto.id),
       (v) => `${producto.nombre} añadido. ${totalTexto(v)}`,
@@ -355,20 +350,23 @@ export function Carrito() {
       )}
 
       <section aria-labelledby="titulo-productos" className="productos">
-        <h2 id="titulo-productos">Productos de prueba</h2>
-        <p className="ayuda">Provisional hasta que exista el menú real.</p>
+        <h2 id="titulo-productos">Añadir del menú</h2>
+        <p className="ayuda">
+          Productos de la carta publicada. <Link href="/menu">Ver la carta completa</Link>, con descripciones y
+          alérgenos.
+        </p>
         {productos.length === 0 ? (
-          <p>No hay productos de prueba disponibles. Comprueba que la API está en ejecución.</p>
+          <p>No hay productos publicados en el menú. Comprueba que la API está en ejecución y que hay un menú publicado.</p>
         ) : (
           <ul className="lista-productos">
             {productos.map((producto) => (
               <li key={producto.id}>
                 <span>
                   <strong>{producto.nombre}</strong> · {dinero(producto.precioCentavos)}
-                  {producto.estado !== "disponible" && <> · {ESTADO_PRODUCTO[producto.estado]}</>}
-                  {producto.estado === "disponible" && !producto.enHorario && <> · Fuera de horario</>}
+                  {" · "}
+                  {producto.textoDisponibilidad}
                 </span>
-                {producto.estado === "disponible" && (
+                {producto.sePuedeAnadir && (
                   <button type="button" onClick={() => anadir(producto)} aria-label={`Añadir ${producto.nombre} al carrito`}>
                     Añadir
                   </button>

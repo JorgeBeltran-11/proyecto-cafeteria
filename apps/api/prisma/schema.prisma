@@ -1,12 +1,172 @@
-// Esquema de Prisma de la API (spec 001, data-model.md).
+// Esquema Prisma - Spec 002: Identidad.
+// Identidad administra credenciales y autenticación.
+// Los datos personales pertenecen al módulo Clientes.
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite" // pasar a "postgresql" en la fase de PostgreSQL
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
-// Sin modelos: los añaden las specs 002 (identidad), 003 (catalogo) y 004 (carrito).
+model Account {
+  id              String    @id @default(uuid())
+  clientId        String?   @unique
+  passwordHash    String
+  role            String    @default("customer")
+  status          String    @default("pending_confirmation")
+  emailVerifiedAt DateTime?
+  mfaEnabled      Boolean   @default(false)
+  lastLoginAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  sessions                UserSession[]
+  emailVerificationTokens EmailVerificationToken[]
+  passwordResetTokens     PasswordResetToken[]
+  mfaSecret               MfaSecret?
+  recoveryCodes           MfaRecoveryCode[]
+  securityEvents          SecurityEvent[]
+
+  @@index([role, status])
+}
+
+model UserSession {
+  id         String    @id @default(uuid())
+  accountId  String
+  userAgent  String?
+  ipHash     String?
+  createdAt  DateTime  @default(now())
+  lastSeenAt DateTime  @default(now())
+  expiresAt  DateTime
+  revokedAt  DateTime?
+
+  account       Account        @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  refreshTokens RefreshToken[]
+
+  @@index([accountId, revokedAt])
+  @@index([expiresAt])
+}
+
+model RefreshToken {
+  id                String    @id @default(uuid())
+  sessionId         String
+  tokenHash         String    @unique
+  familyId          String
+  expiresAt         DateTime
+  revokedAt         DateTime?
+  replacedByTokenId String?
+  createdAt         DateTime  @default(now())
+
+  session UserSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, revokedAt])
+  @@index([familyId])
+  @@index([expiresAt])
+}
+
+model EmailVerificationToken {
+  id        String    @id @default(uuid())
+  accountId String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId, usedAt])
+  @@index([expiresAt])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  accountId String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId, usedAt])
+  @@index([expiresAt])
+}
+
+model MfaSecret {
+  id              String    @id @default(uuid())
+  accountId       String    @unique
+  status          String    @default("pending_activation")
+  secretEncrypted String
+  enabledAt       DateTime?
+  lastVerifiedAt  DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+}
+
+model MfaRecoveryCode {
+  id        String    @id @default(uuid())
+  accountId String
+  codeHash  String    @unique
+  usedAt    DateTime?
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId, usedAt])
+}
+
+model SecurityEvent {
+  id        String   @id @default(uuid())
+  accountId String?
+  eventType String
+  eventAt   DateTime @default(now())
+  ipHash    String?
+  metadata  String?
+
+  account Account? @relation(fields: [accountId], references: [id], onDelete: SetNull)
+
+  @@index([accountId, eventAt])
+  @@index([eventType, eventAt])
+}
+
+model ClientProfile {
+  id          String   @id @default(uuid())
+  fullName    String
+  email       String   @unique
+  phone       String?
+  preferences Json?
+  locale      String   @default("es-EC")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ConsentRecord {
+  id            String   @id @default(uuid())
+  clientId      String
+  purpose       String
+  state         String
+  effectiveFrom DateTime @default(now())
+  effectiveTo   DateTime?
+  source        String   @default("self-service")
+  createdAt     DateTime @default(now())
+
+  @@index([clientId, purpose, effectiveFrom])
+}
+
+model DataRightsRequest {
+  id          String    @id @default(uuid())
+  clientId    String
+  requestType String
+  status      String    @default("pending")
+  requestedAt DateTime  @default(now())
+  completedAt DateTime?
+
+  @@index([clientId, status])
+  @@index([requestedAt])
+}

@@ -1,0 +1,1360 @@
+openapi: 3.0.3
+info:
+  title: Identidad y gestión de clientes API
+  version: 1.0.0
+  description: Contrato HTTP del módulo de identidad para clientes, personal y administración.
+servers:
+  - url: http://localhost:3001
+paths:
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Registrar una nueva cuenta de cliente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '200':
+          description: Respuesta neutral para no revelar si la cuenta existe.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMessageResponse'
+        '400':
+          description: Datos inválidos o política de privacidad no aceptada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: El correo ya existe o la cuenta está pendiente de validación.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Demasiados intentos de registro desde la misma fuente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/confirm-email:
+    post:
+      tags: [Auth]
+      summary: Confirmar correo con token temporal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfirmEmailRequest'
+      responses:
+        '200':
+          description: Correo confirmado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMessageResponse'
+        '400':
+          description: Token inválido, usado o caducado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Token o cuenta no encontrada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Iniciar sesión
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Credenciales válidas o requiere MFA. La API devuelve un desafío temporal cuando el segundo factor está activo.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/LoginResponse'
+                  - $ref: '#/components/schemas/LoginChallengeResponse'
+        '401':
+          description: Credenciales inválidas.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Demasiados intentos de inicio de sesión.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/login/mfa:
+    post:
+      tags: [Auth]
+      summary: Completar el inicio de sesión con MFA TOTP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginMfaRequest'
+      responses:
+        '200':
+          description: Inicio de sesión completado correctamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Código inválido o desafío caducado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: La sesión no está autorizada para este challenge.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Demasiados intentos de TOTP.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Renovar access token usando refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: Access token renovado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshTokenResponse'
+        '401':
+          description: Refresh token inválido, caducado o revocado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Token rotado o ya usado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Cerrar sesión actual
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Sesión cerrada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMessageResponse'
+        '401':
+          description: Token inválido o expirado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/forgot-password:
+    post:
+      tags: [Auth]
+      summary: Solicitar recuperación de contraseña
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordRequest'
+      responses:
+        '200':
+          description: Respuesta neutral para no revelar si la cuenta existe.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMessageResponse'
+        '429':
+          description: Demasiadas solicitudes en poco tiempo.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/reset-password:
+    post:
+      tags: [Auth]
+      summary: Restablecer contraseña con token temporal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+      responses:
+        '200':
+          description: Contraseña actualizada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMessageResponse'
+        '400':
+          description: Token inválido, usado o caducado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Token no encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/mfa/setup:
+    post:
+      tags: [Auth]
+      summary: Configurar MFA TOTP; el secreto nunca se devuelve en texto plano
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Se prepara la configuración MFA y se devuelve la URI de aprovisionamiento TOTP para registrar la cuenta en una aplicación autenticadora. El secreto se almacena cifrado en el servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MfaSetupResponse'
+        '400':
+          description: MFA ya activo o configuración inválida.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Usuario no autenticado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/mfa/verify:
+    post:
+      tags: [Auth]
+      summary: Verificar el código TOTP del usuario
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MfaVerifyRequest'
+      responses:
+        '200':
+          description: MFA verificado y activado. Los códigos de recuperación se entregan una sola vez.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MfaVerifyResponse'
+        '400':
+          description: Código no válido o temporalmente no permitido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: No autenticado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/mfa/recovery:
+    post:
+      tags: [Auth]
+      summary: Usar un código de recuperación MFA una sola vez
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MfaRecoveryRequest'
+      responses:
+        '200':
+          description: Código de recuperación aceptado y marcado como usado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMessageResponse'
+        '400':
+          description: Código ya usado, no válido o vencido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: No autenticado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /me:
+    get:
+      tags: [Profile]
+      summary: Obtener el perfil autenticado
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Perfil del usuario autenticado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        '401':
+          description: No autenticado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      tags: [Profile]
+      summary: Editar perfil del usuario autenticado
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileUpdateRequest'
+      responses:
+        '200':
+          description: Perfil actualizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        '400':
+          description: Datos inválidos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: No autenticado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /me/email:
+    post:
+      tags: [Profile]
+      summary: Solicitar cambio de correo electrónico
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailChangeRequest'
+      responses:
+        '200':
+          description: Cambio solicitado y validado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMessageResponse'
+        '400':
+          description: Correo inválido o duplicado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: No autenticado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: El nuevo correo ya está asociado a otra cuenta.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /me/email/confirm:
+    post:
+      tags: [Profile]
+      summary: Confirmar el cambio de correo electrónico
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailChangeConfirmationRequest'
+      responses:
+        '200':
+          description: Cambio de correo confirmado y aplicado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMessageResponse'
+        '400':
+          description: Token inválido, usado o caducado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: No autenticado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /me/password:
+    post:
+      tags: [Profile]
+      summary: Cambiar la contraseña del usuario autenticado
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordChangeRequest'
+      responses:
+        '200':
+          description: Contraseña actualizada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMessageResponse'
+        '400':
+          description: La contraseña nueva no cumple las reglas.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: No autenticado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /me/orders:
+    get:
+      tags: [Orders]
+      summary: Consultar el historial de pedidos del cliente
+      description: El módulo de identidad no accede directamente a tablas de pedidos; consulta a través de interfaz pública del módulo de pedidos o de un servicio expuesto.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de pedidos del cliente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CustomerOrderSummaryResponse'
+        '401':
+          description: No autenticado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /me/sessions:
+    get:
+      tags: [Profile]
+      summary: Listar sesiones activas del usuario
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de sesiones activas.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SessionResponse'
+        '401':
+          description: No autenticado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /me/sessions/revoke-all:
+    post:
+      tags: [Profile]
+      summary: Revocar todas las sesiones del usuario actual
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Todas las sesiones revocadas.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMessageResponse'
+        '401':
+          description: No autenticado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /me/sessions/{sessionId}/revoke:
+    post:
+      tags: [Profile]
+      summary: Revocar una sesión concreta
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: sessionId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Sesión revocada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMessageResponse'
+        '401':
+          description: No autenticado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Sesión no encontrada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /me/consents:
+    get:
+      tags: [Privacy]
+      summary: Consultar consentimientos del usuario
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Historial actual y vigente de consentimientos.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConsentResponse'
+        '401':
+          description: No autenticado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags: [Privacy]
+      summary: Registrar o revocar consentimiento
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsentUpdateRequest'
+      responses:
+        '200':
+          description: Consentimiento actualizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentResponse'
+        '400':
+          description: Solicitud inválida.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: No autenticado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /me/privacy:
+    get:
+      tags: [Privacy]
+      summary: Mostrar la información de tratamiento y retención
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Inventario de datos personales y fines del tratamiento.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrivacyPolicyResponse'
+        '401':
+          description: No autenticado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /me/data-export:
+    post:
+      tags: [Privacy]
+      summary: Solicitar exportación de datos personales
+      security:
+        - bearerAuth: []
+      responses:
+        '202':
+          description: Solicitud creada para exportación.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestAcceptedResponse'
+        '401':
+          description: No autenticado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /me/delete-account:
+    post:
+      tags: [Privacy]
+      summary: Solicitar eliminación de la cuenta
+      security:
+        - bearerAuth: []
+      responses:
+        '202':
+          description: Solicitud creada con validación adicional.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestAcceptedResponse'
+        '401':
+          description: No autenticado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Hay un pedido en curso o la operación ya está en proceso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /me/delete-account/re-auth:
+    post:
+      tags: [Privacy]
+      summary: Reautenticación previa antes de confirmar la eliminación de la cuenta
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReauthRequest'
+      responses:
+        '200':
+          description: Reautenticación completada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMessageResponse'
+        '401':
+          description: Credenciales no válidas para la reautenticación.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: El usuario no tiene permiso para confirmar la eliminación.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /admin/staff:
+    get:
+      tags: [Admin]
+      summary: Listar cuentas del personal
+      description: Requiere autorización de administrador aplicada en el servidor.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Listado del personal.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StaffMemberResponse'
+        '401':
+          description: No autenticado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: El usuario no tiene permisos de administrador.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags: [Admin]
+      summary: Crear una cuenta de personal
+      description: Requiere autorización de administrador aplicada en el servidor.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateStaffRequest'
+      responses:
+        '201':
+          description: Cuenta creada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffMemberResponse'
+        '401':
+          description: No autenticado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: El usuario no tiene permisos de administrador.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Ya existe un usuario con ese correo.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /admin/staff/{staffId}/disable:
+    post:
+      tags: [Admin]
+      summary: Desactivar un miembro del personal
+      description: Requiere autorización de administrador aplicada en el servidor.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: staffId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Cuenta desactivada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMessageResponse'
+        '401':
+          description: No autenticado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: El usuario no tiene permisos de administrador.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Miembro del personal no encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /admin/staff/{staffId}/reactivate:
+    post:
+      tags: [Admin]
+      summary: Reactivar una cuenta de personal desactivada
+      description: Requiere autorización de administrador aplicada en el servidor.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: staffId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Cuenta reactivada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMessageResponse'
+        '401':
+          description: No autenticado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: El usuario no tiene permisos de administrador.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Cuenta no encontrada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /admin/staff/{staffId}/sessions/revoke-all:
+    post:
+      tags: [Admin]
+      summary: Revocar todas las sesiones del personal por un administrador
+      description: Requiere autorización de administrador aplicada en el servidor.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: staffId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Sesiones revocadas.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMessageResponse'
+        '401':
+          description: No autenticado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: El usuario no tiene permisos de administrador.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Cuenta del personal no encontrada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /admin/staff/{staffId}/mfa/reset:
+    post:
+      tags: [Admin]
+      summary: Restablecer MFA de un miembro del personal
+      description: Requiere autorización de administrador aplicada en el servidor.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: staffId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: MFA restablecido y evento registrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMessageResponse'
+        '401':
+          description: No autenticado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: El usuario no tiene permisos de administrador.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Miembro del personal no encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    RegisterRequest:
+      type: object
+      required: [fullName, email, password, acceptsPrivacyPolicy]
+      properties:
+        fullName:
+          type: string
+          minLength: 2
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 12
+        acceptsPrivacyPolicy:
+          type: boolean
+
+    ConfirmEmailRequest:
+      type: object
+      required: [token]
+      properties:
+        token:
+          type: string
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    LoginMfaRequest:
+      type: object
+      required: [challengeId, code]
+      properties:
+        challengeId:
+          type: string
+        code:
+          type: string
+
+    RefreshTokenRequest:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken:
+          type: string
+
+    RefreshTokenResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        expiresIn:
+          type: integer
+
+    LoginChallengeResponse:
+      type: object
+      properties:
+        challengeId:
+          type: string
+        mfaRequired:
+          type: boolean
+        message:
+          type: string
+
+    ForgotPasswordRequest:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+
+    ResetPasswordRequest:
+      type: object
+      required: [token, password]
+      properties:
+        token:
+          type: string
+        password:
+          type: string
+          minLength: 12
+
+    MfaSetupResponse:
+      type: object
+      required: [qrCodeUrl, status]
+      properties:
+        qrCodeUrl:
+          type: string
+          format: uri
+          description: URI de aprovisionamiento TOTP para registrar la cuenta en la aplicación autenticadora.
+        status:
+          type: string
+          enum: [pending_activation]
+
+    MfaVerifyResponse:
+      type: object
+      required: [status, recoveryCodes]
+      properties:
+        status:
+          type: string
+          enum: [active]
+        recoveryCodes:
+          type: array
+          minItems: 8
+          description: Códigos de recuperación de un solo uso. Se entregan una sola vez tras activar MFA.
+          items:
+            type: string
+
+    MfaVerifyRequest:
+      type: object
+      required: [code]
+      properties:
+        code:
+          type: string
+          minLength: 6
+          maxLength: 6
+          pattern: '^[0-9]{6}$'
+
+    MfaRecoveryRequest:
+      type: object
+      required: [code]
+      properties:
+        code:
+          type: string
+          minLength: 8
+          maxLength: 8
+
+    EmailChangeRequest:
+      type: object
+      required: [newEmail]
+      properties:
+        newEmail:
+          type: string
+          format: email
+
+    EmailChangeConfirmationRequest:
+      type: object
+      required: [token]
+      properties:
+        token:
+          type: string
+
+    ReauthRequest:
+      type: object
+      required: [password]
+      properties:
+        password:
+          type: string
+
+    ProfileResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        fullName:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          nullable: true
+        preferences:
+          type: object
+          additionalProperties: true
+
+    ProfileUpdateRequest:
+      type: object
+      properties:
+        fullName:
+          type: string
+        phone:
+          type: string
+        preferences:
+          type: object
+          additionalProperties: true
+
+    PasswordChangeRequest:
+      type: object
+      required: [currentPassword, newPassword]
+      properties:
+        currentPassword:
+          type: string
+        newPassword:
+          type: string
+          minLength: 12
+
+    SessionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        userAgent:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+        isActive:
+          type: boolean
+
+    ConsentResponse:
+      type: object
+      properties:
+        purpose:
+          type: string
+        state:
+          type: string
+          enum: [granted, revoked]
+        effectiveFrom:
+          type: string
+          format: date-time
+        effectiveTo:
+          type: string
+          format: date-time
+          nullable: true
+
+    ConsentUpdateRequest:
+      type: object
+      required: [purpose, granted]
+      properties:
+        purpose:
+          type: string
+        granted:
+          type: boolean
+
+    PrivacyPolicyResponse:
+      type: object
+      properties:
+        dataPoints:
+          type: array
+          items:
+            type: string
+        purposes:
+          type: array
+          items:
+            type: string
+        retention:
+          type: string
+
+    RequestAcceptedResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          format: uuid
+        status:
+          type: string
+        message:
+          type: string
+
+    StaffMemberResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+        status:
+          type: string
+
+    CreateStaffRequest:
+      type: object
+      required: [email, role]
+      properties:
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [staff, admin]
+
+    CustomerOrderSummaryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+        total:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+
+    LoginResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        expiresIn:
+          type: integer
+
+    GenericMessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string

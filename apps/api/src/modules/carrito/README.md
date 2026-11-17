@@ -26,7 +26,7 @@ grep -rn "PENDIENTE(spec-" apps/
 
 | Pendiente | Qué hacer cuando la otra spec esté en `main` |
 |---|---|
-| **spec-003** (catálogo, Julio) | El catálogo implementa `CatalogoParaCarrito` y lo exporta. Aquí: importar `CatalogoModule`, quitar `CatalogoProvisional` del módulo y borrar `provisional/catalogo-provisional*.ts`. En la web, añadir productos desde el menú real |
+| **spec-003** (catálogo, Julio) | ✅ Integrado: el carrito importa `CatalogoModule` y la web añade desde la carta publicada |
 | **spec-002** (identidad, Leonardo) | Sustituir `SesionProvisionalGuard` por el guard de identidad (debe dejar `request.clienteId`) y borrar `provisional/sesion-provisional.guard.ts`. En la web, quitar el campo "Cliente de prueba" y la cabecera `X-Cliente-Id`. Identidad llama a `CarritoService.eliminarDeCliente` al borrar una cuenta |
 | **spec-005** (promociones) | Sustituir `SinDescuentos` por el calculador real y generar el aviso `fin_de_promocion` |
 | **spec-006** (pedidos) | Pedidos usa `CarritoService.ver` (no confirmar si `sePuedeConfirmar` es `false`) y `vaciar` |

@@ -3,6 +3,7 @@ import { CatalogoParaCarrito } from '../carrito/puertos/catalogo.puerto';
 import { CatalogoAdminController } from './catalogo-admin.controller';
 import { CatalogoPublicoController } from './catalogo-publico.controller';
 import { CatalogoService } from './catalogo.service';
+import { DatosDemoCatalogo } from './datos-demo';
 import { DisponibilidadController } from './disponibilidad.controller';
 import { RolesProvisionalGuard } from './provisional/roles-provisional.guard';
 
@@ -20,6 +21,7 @@ import { RolesProvisionalGuard } from './provisional/roles-provisional.guard';
     CatalogoService,
     { provide: CatalogoParaCarrito, useExisting: CatalogoService },
     RolesProvisionalGuard, // PENDIENTE(spec-002)
+    DatosDemoCatalogo,
   ],
   exports: [CatalogoService, CatalogoParaCarrito],
 })

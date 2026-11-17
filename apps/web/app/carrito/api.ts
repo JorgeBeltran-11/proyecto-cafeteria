@@ -1,16 +1,45 @@
-import type { CarritoVista } from "@cafeteria/shared";
+import type { CarritoVista, CartaPublica } from "@cafeteria/shared";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 const TIMEOUT_MS = 5000;
 
-/** PENDIENTE(spec-003): forma de los productos del catálogo provisional. */
-export interface ProductoDePrueba {
+/** Producto de la carta publicada (spec 003), con lo que el carrito necesita para ofrecerlo. */
+export interface ProductoDelMenu {
   id: string;
   nombre: string;
   precioCentavos: number;
-  estado: "disponible" | "agotado" | "retirado";
-  existencias: number | null;
-  enHorario: boolean;
+  /** Texto de la disponibilidad que da el catálogo, p. ej. "Agotado" o "Disponible desde las 07:00". */
+  textoDisponibilidad: string;
+  /** Se puede añadir si no está agotado; fuera de horario sí se puede (research R9 de la spec 004). */
+  sePuedeAnadir: boolean;
+}
+
+function esCarta(valor: unknown): valor is CartaPublica {
+  return (
+    typeof valor === "object" &&
+    valor !== null &&
+    Array.isArray((valor as Record<string, unknown>).menus)
+  );
+}
+
+/** Aplana los menús publicados en una lista sin productos repetidos. */
+function productosDe(carta: CartaPublica): ProductoDelMenu[] {
+  const vistos = new Map<string, ProductoDelMenu>();
+  for (const menu of carta.menus) {
+    for (const categoria of menu.categorias) {
+      for (const p of categoria.productos) {
+        if (vistos.has(p.id)) continue;
+        vistos.set(p.id, {
+          id: p.id,
+          nombre: p.nombre,
+          precioCentavos: p.precioCentavos,
+          textoDisponibilidad: p.textoDisponibilidad,
+          sePuedeAnadir: p.disponibilidad !== "agotado",
+        });
+      }
+    }
+  }
+  return [...vistos.values()];
 }
 
 /** Error con un mensaje listo para mostrar al cliente. */
@@ -109,10 +138,10 @@ export const apiCarrito = {
   aceptarPrecios: (clienteId: string) =>
     carrito("/carrito/aceptar-precios", clienteId, "POST"),
 
-  /** PENDIENTE(spec-003): se sustituye por el menú real. */
-  async productosDePrueba(): Promise<ProductoDePrueba[]> {
-    const datos = await llamar("/catalogo-provisional/productos");
-    return Array.isArray(datos) ? (datos as ProductoDePrueba[]) : [];
+  /** Productos de la carta publicada por el catálogo (spec 003). */
+  async productosDelMenu(): Promise<ProductoDelMenu[]> {
+    const datos = await llamar("/catalogo/menu");
+    return esCarta(datos) ? productosDe(datos) : [];
   },
 };
 

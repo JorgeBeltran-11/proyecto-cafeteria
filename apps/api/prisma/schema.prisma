@@ -36,3 +36,71 @@ model LineaCarrito {
 
   @@unique([carritoId, productoId])
 }
+
+// ---------------------------------------------------------------------------
+// Módulo catalogo (spec 003, data-model.md). Tablas propiedad exclusiva del módulo.
+// Los campos JSON se guardan como texto (research R8).
+// ---------------------------------------------------------------------------
+
+model Producto {
+  /// Lo elige el administrador (p. ej. "capuchino"); es el id que usan la web y el carrito.
+  id             String   @id
+  nombre         String
+  descripcion    String
+  precioCentavos Int
+  imagenUrl      String?
+  imagenAlt      String?
+  /// JSON Alergeno[]; null = alérgenos sin declarar (bloquea la publicación).
+  alergenos      String?
+  agotado        Boolean  @default(false)
+  /// null = el producto no controla existencias.
+  existencias    Int?
+  retirado       Boolean  @default(false)
+  revision       Int      @default(1)
+  creadoEn       DateTime @default(now())
+  actualizadoEn  DateTime @updatedAt
+}
+
+model Menu {
+  id               String        @id @default(cuid())
+  /// borrador | publicado | retirado
+  estado           String
+  /// JSON { nombre, horario, categorias: [{ nombre, productoIds }] }
+  borrador         String
+  versionPublicada Int?
+  revision         Int           @default(1)
+  creadoEn         DateTime      @default(now())
+  actualizadoEn    DateTime      @updatedAt
+  versiones        VersionMenu[]
+}
+
+/// Instantánea inmutable de un menú publicado (FR-005).
+model VersionMenu {
+  id           String   @id @default(cuid())
+  menuId       String
+  numero       Int
+  /// JSON ContenidoVersion
+  contenido    String
+  /// JSON string[]: resumen de cambios respecto a la versión anterior
+  cambios      String
+  publicadaPor String
+  publicadaEn  DateTime
+  restauradaDe Int?
+  menu         Menu     @relation(fields: [menuId], references: [id], onDelete: Cascade)
+
+  @@unique([menuId, numero])
+}
+
+/// Registro de auditoría del catálogo (FR-012).
+model CambioCatalogo {
+  id        String   @id @default(cuid())
+  entidad   String
+  entidadId String
+  accion    String
+  usuarioId String
+  /// JSON con el detalle del cambio
+  detalle   String
+  fecha     DateTime @default(now())
+
+  @@index([entidad, entidadId])
+}

@@ -63,6 +63,7 @@ En bash (Linux, macOS, Git Bash) los pasos son los mismos cambiando `Copy-Item` 
 | `CARRITO_MAX_UNIDADES_POR_PRODUCTO` | `apps/api/.env` | `20` | Máximo de unidades de un producto en el carrito (spec 004, opcional) |
 | `CARRITO_MAX_UNIDADES_POR_CARRITO` | `apps/api/.env` | `50` | Máximo de unidades en todo el carrito (spec 004, opcional) |
 | `CARRITO_DIAS_INACTIVIDAD` | `apps/api/.env` | `30` | Días sin actividad tras los que se vacía un carrito (spec 004, opcional) |
+| `CATALOGO_DATOS_DEMO` | `apps/api/.env` | `true` | Carga un menú de ejemplo al arrancar si no hay menús (spec 003; nunca en producción) |
 | `NEXT_PUBLIC_API_URL` | `apps/web/.env.local` | `http://localhost:3001` | URL de la API que consulta la web |
 
 Para cambiar los puertos:
@@ -112,7 +113,7 @@ Cada spec vive en `specs/NNN-nombre/` y su código va en el módulo indicado. Lo
 |------|-----------|------------------|-------------------|
 | `001-plataforma-entrega` | Stack base: monorepo, `/health`, CI, commits | `apps/api`, `apps/web`, `packages/shared` | `plataforma`, `api`, `web`, `shared`, `repo`, `ci` |
 | `002-identidad-clientes` | Gestión de clientes | `apps/api/src/modules/identidad/` | `identidad` |
-| `003-menu-dinamico` | Menús modificables en tiempo de ejecución | `apps/api/src/modules/catalogo/` | `catalogo` |
+| `003-menu-dinamico` | Menús modificables en tiempo de ejecución, con versiones y disponibilidad (roles provisionales: ver el [README del módulo](apps/api/src/modules/catalogo/README.md)) | `apps/api/src/modules/catalogo/`, `apps/web/app/menu/`, `apps/web/app/personal/` | `catalogo` |
 | `004-carrito-compras` | Carrito de compras por cliente (implementado con piezas provisionales: ver el [README del módulo](apps/api/src/modules/carrito/README.md)) | `apps/api/src/modules/carrito/`, `apps/web/app/carrito/` | `carrito` |
 | `005-promociones-descuentos` | Promociones acotadas por fechas | Se define en su `plan.md` | Añadir a `commitlint.config.ts` |
 | `006-pedidos` | Pedidos | Se define en su `plan.md` | Añadir a `commitlint.config.ts` |

@@ -248,3 +248,140 @@ button.secundario:hover {
   padding: 0.5rem 0;
   border-bottom: 1px solid #767676;
 }
+
+/*
+ * Menú y disponibilidad (spec 003). Mismos colores AAA; la disponibilidad siempre lleva texto.
+ */
+.enlaces-inicio {
+  padding-left: 1.25rem;
+}
+
+.enlaces-inicio li {
+  margin: 0.5rem 0;
+}
+
+.filtro {
+  margin: 0 0 1.5rem;
+  border: 2px solid var(--color-texto);
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+}
+
+.filtro summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.filtro summary:focus-visible,
+input[type="checkbox"]:focus-visible,
+h3:focus-visible {
+  outline: 3px solid var(--color-foco);
+  outline-offset: 3px;
+}
+
+.filtro fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0.5rem 0 0;
+}
+
+.filtro legend {
+  font-weight: 600;
+  padding: 0;
+}
+
+.opciones-alergenos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: 0.25rem 1rem;
+}
+
+label.opcion {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  font-weight: 400;
+}
+
+label.opcion input {
+  width: 1.5rem;
+  height: 1.5rem;
+  min-height: 0;
+  margin: 0;
+}
+
+.indice ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  list-style: none;
+  margin: 0 0 1.5rem;
+  padding: 0;
+}
+
+.indice a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.menu {
+  margin-bottom: 2.5rem;
+}
+
+.menu > p {
+  margin: 0.25rem 0;
+}
+
+h3 {
+  font-size: 1.2rem;
+  margin: 1.5rem 0 0.5rem;
+}
+
+.lista-productos-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.producto {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1rem 0;
+  border-bottom: 1px solid #767676;
+}
+
+.producto p {
+  margin: 0.25rem 0;
+}
+
+.producto-imagen {
+  flex: none;
+  width: 96px;
+  height: 96px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: #f2f2f2;
+}
+
+.producto-nombre {
+  font-size: 1.125rem;
+  margin: 0;
+}
+
+.producto-precio {
+  font-weight: 700;
+}
+
+.etiqueta {
+  font-weight: 600;
+}
+
+.existencias {
+  margin-top: 0.75rem;
+}

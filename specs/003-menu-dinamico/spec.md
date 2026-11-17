@@ -2,7 +2,8 @@
 
 **Feature Branch**: `003-menu-dinamico`
 **Created**: 2026-11-12
-**Status**: Draft
+**Status**: Acotada (ver *Alcance en este equipo*)
+**Responsable**: Julio Maldonado · **Rama**: `feature/spec-3`
 **Input**: User description: "RF-02 Menú dinámico: el administrador crea, edita, publica y retira menús, categorías y productos (nombre, descripción, precio, imagen con texto alternativo, alérgenos, disponibilidad). Los cambios se reflejan sin desplegar código, los menús tienen versiones, y hay disponibilidad por horario y por existencias."
 
 ## User Scenarios & Testing *(mandatory)*
@@ -125,3 +126,32 @@ El personal marca un producto como agotado o disponible durante la jornada, o aj
 - Las existencias son opcionales por producto; muchos productos de cafetería se preparan al momento y solo se marcan como agotados.
 - La lista de alérgenos sigue la normativa de etiquetado vigente en Ecuador.
 - Las promociones y descuentos se gestionan en el spec 005; este spec solo cubre el precio base.
+
+## Alcance en este equipo *(acotado el 2026-11-16)*
+
+El equipo implementa las specs 001 (Jorge Beltrán), 002 (Leonardo Mendieta), 003 (Julio Maldonado) y 004 (David León). Las specs 005–008 no tienen responsable, y la 002 se desarrolla a la vez que esta. Como hizo la spec 004, el catálogo depende de **interfaces** y no de los módulos de los demás; lo que falta se cubre con piezas **provisionales** marcadas en el código con `PENDIENTE(spec-00X)`.
+
+### Dependencias
+
+| Necesita / ofrece | Con | Estado | Solución en esta spec |
+|---|---|---|---|
+| Saber si quien llama es administrador o personal, y quién es (autor de cada versión) | Spec 002 (identidad) | PENDIENTE | Cabeceras `X-Rol` y `X-Usuario-Id`, solo fuera de producción |
+| Darle al carrito nombre, precio, estado, existencias y horario de los productos | Spec 004 (carrito) | **Ofrecido** | El catálogo implementa `CatalogoParaCarrito` y lo exporta |
+| Descontar existencias con cada venta confirmada | Spec 006 (pedidos) | Sin responsable | Método público `descontarExistencias`, listo para que lo llame pedidos |
+| Conservar en el pedido el precio y la descripción vigentes al comprar | Spec 006 (pedidos) | Sin responsable | Las versiones publicadas son inmutables; pedidos debe copiar los datos al crearse |
+| Panel de administración | Spec 008 (administración) | Sin responsable | La administración se hace por la API (ver `quickstart.md`) |
+| Auditoría general | Spec 008 (administración) | Sin responsable | El catálogo guarda su propio registro de cambios (tabla `CambioCatalogo`) |
+
+Contratos en [`contracts/dependencias.md`](./contracts/dependencias.md).
+
+### Ajustes a los requisitos
+
+- **FR-001, US2 y US3 (administrador)**: todas las operaciones existen en la API (`/catalogo/admin/...`). El panel visual para el administrador se hará en la spec 008, que en el `ROADMAP.md` es la dueña del panel de administración. La web de esta spec cubre la **tienda** (US1) y la **pantalla del personal** (US4).
+- **US2-4 (previsualizar)**: `GET /catalogo/admin/menus/:id/vista-previa` devuelve el borrador con la misma forma que el menú público.
+- **FR-006 y SC-002 (< 10 s)**: el menú público se lee de la base de datos en cada petición, sin caché, así que un cambio publicado se ve en la siguiente carga. Redis y la invalidación por eventos quedan diferidos (spec 001).
+- **US3-2 y SC-004 (pedidos con el precio original)**: el catálogo nunca modifica una versión publicada; guardar la copia en el pedido corresponde a la spec 006.
+- **US4-2 (agotado al llegar a cero)**: `descontarExistencias` marca el producto como agotado cuando las existencias llegan a 0. Lo llamará pedidos (spec 006); hoy se prueba con tests.
+- **FR-011 (ediciones concurrentes)**: cada menú y cada producto tienen un número de `revision`. Quien guarda envía la revisión que leyó; si otra persona guardó antes, la API responde `409` y no sobrescribe.
+- **FR-012 (auditoría)**: cada cambio de precio, contenido, publicación, retiro, restauración y disponibilidad se registra en `CambioCatalogo` con autor y fecha. La consulta general de auditoría es de la spec 008.
+- **Alérgenos**: lista cerrada de 14 alérgenos de declaración obligatoria (ver `data-model.md`); falta validarla contra el reglamento de etiquetado ecuatoriano vigente.
+- **Zona horaria**: la cafetería usa la hora de Ecuador continental (UTC−5, sin horario de verano).

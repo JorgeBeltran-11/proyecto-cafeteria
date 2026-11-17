@@ -11,3 +11,30 @@ export interface HealthResponse {
   /** Momento de la comprobación, ISO 8601 en UTC. */
   checkedAt: string;
 }
+
+export type {
+  AjusteCantidad,
+  AvisoCarrito,
+  CarritoVista,
+  LineaCarritoVista,
+  TipoAvisoCarrito,
+} from './carrito';
+
+export type {
+  Alergeno,
+  AlergenoVista,
+  CartaPublica,
+  CategoriaBorrador,
+  CategoriaPublica,
+  DiaSemana,
+  DisponibilidadProducto,
+  DisponibilidadVista,
+  EstadoMenu,
+  FranjaHoraria,
+  Horario,
+  MenuAdmin,
+  MenuPublico,
+  ProductoAdmin,
+  ProductoPublico,
+  VersionMenuResumen,
+} from './catalogo';

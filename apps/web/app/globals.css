@@ -97,3 +97,291 @@ button:focus-visible {
     scroll-behavior: auto !important;
   }
 }
+
+/*
+ * Carrito (spec 004). Mismos colores AAA que la página de inicio; los estados siempre llevan texto.
+ * Gris secundario #4a4a4a sobre blanco ≈ 8,9:1.
+ */
+a {
+  color: var(--color-texto);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+a:focus-visible,
+input:focus-visible,
+h1:focus-visible {
+  outline: 3px solid var(--color-foco);
+  outline-offset: 3px;
+}
+
+h2 {
+  font-size: 1.375rem;
+  line-height: 1.3;
+  margin: 2rem 0 0.75rem;
+}
+
+label {
+  display: block;
+  font-weight: 700;
+}
+
+input {
+  min-height: 44px;
+  padding: 0.4rem 0.6rem;
+  font: inherit;
+  color: var(--color-texto);
+  background: var(--color-fondo);
+  border: 2px solid var(--color-texto);
+  border-radius: 6px;
+}
+
+input[aria-invalid="true"] {
+  border-color: var(--color-error);
+}
+
+button.secundario {
+  color: var(--color-texto);
+  background: var(--color-fondo);
+}
+
+button.secundario:hover {
+  background: #eeeeee;
+}
+
+.solo-lector {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.ayuda {
+  color: #4a4a4a;
+  margin: 0.25rem 0 0.5rem;
+}
+
+.fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.anuncio {
+  min-height: 1.6em;
+  margin: 0 0 1.5rem;
+  font-weight: 600;
+}
+
+.cliente-prueba,
+.error-carga {
+  margin: 0 0 1.5rem;
+}
+
+.lineas,
+.lista-productos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.linea {
+  padding: 1rem 0;
+  border-bottom: 1px solid #767676;
+}
+
+.linea p {
+  margin: 0.25rem 0;
+}
+
+.cantidad {
+  width: 5rem;
+}
+
+.cantidad-boton {
+  padding: 0.5rem 0.9rem;
+}
+
+.deshacer {
+  margin: 1rem 0;
+}
+
+.avisos {
+  padding: 0.25rem 1rem 1rem;
+  border: 3px solid var(--color-error);
+  border-radius: 6px;
+}
+
+.avisos h2 {
+  margin-top: 0.75rem;
+}
+
+.resumen {
+  display: grid;
+  grid-template-columns: auto auto;
+  justify-content: start;
+  gap: 0.25rem 2rem;
+  margin: 0 0 1rem;
+}
+
+.resumen dd {
+  margin: 0;
+  text-align: right;
+}
+
+.resumen .total {
+  font-weight: 700;
+}
+
+.lista-productos li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #767676;
+}
+
+/*
+ * Menú y disponibilidad (spec 003). Mismos colores AAA; la disponibilidad siempre lleva texto.
+ */
+.enlaces-inicio {
+  padding-left: 1.25rem;
+}
+
+.enlaces-inicio li {
+  margin: 0.5rem 0;
+}
+
+.filtro {
+  margin: 0 0 1.5rem;
+  border: 2px solid var(--color-texto);
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+}
+
+.filtro summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.filtro summary:focus-visible,
+input[type="checkbox"]:focus-visible,
+h3:focus-visible {
+  outline: 3px solid var(--color-foco);
+  outline-offset: 3px;
+}
+
+.filtro fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0.5rem 0 0;
+}
+
+.filtro legend {
+  font-weight: 600;
+  padding: 0;
+}
+
+.opciones-alergenos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: 0.25rem 1rem;
+}
+
+label.opcion {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  font-weight: 400;
+}
+
+label.opcion input {
+  width: 1.5rem;
+  height: 1.5rem;
+  min-height: 0;
+  margin: 0;
+}
+
+.indice ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  list-style: none;
+  margin: 0 0 1.5rem;
+  padding: 0;
+}
+
+.indice a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.menu {
+  margin-bottom: 2.5rem;
+}
+
+.menu > p {
+  margin: 0.25rem 0;
+}
+
+h3 {
+  font-size: 1.2rem;
+  margin: 1.5rem 0 0.5rem;
+}
+
+.lista-productos-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.producto {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1rem 0;
+  border-bottom: 1px solid #767676;
+}
+
+.producto p {
+  margin: 0.25rem 0;
+}
+
+.producto-imagen {
+  flex: none;
+  width: 96px;
+  height: 96px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: #f2f2f2;
+}
+
+.producto-nombre {
+  font-size: 1.125rem;
+  margin: 0;
+}
+
+.producto-precio {
+  font-weight: 700;
+}
+
+.etiqueta {
+  font-weight: 600;
+}
+
+.existencias {
+  margin-top: 0.75rem;
+}

@@ -1,0 +1,217 @@
+openapi: 3.1.0
+info:
+  title: API del carrito (spec 004)
+  version: 0.1.0
+  description: |
+    Todas las rutas actúan sobre el carrito del cliente de la sesión.
+    PENDIENTE(spec-002): hoy el cliente se identifica con la cabecera X-Cliente-Id
+    (solo fuera de producción); la spec 002 la sustituye por la sesión real.
+    Todos los importes son enteros en centavos. Las respuestas llevan Cache-Control: no-store.
+    Los errores siguen el formato de NestJS: { statusCode, message, error }, con message en español.
+
+paths:
+  /carrito:
+    get:
+      summary: Ver el carrito (lo vacía si lleva más de 30 días sin actividad)
+      parameters: [{ $ref: '#/components/parameters/ClienteId' }]
+      responses:
+        '200': { $ref: '#/components/responses/Carrito' }
+        '401': { $ref: '#/components/responses/Error' }
+    delete:
+      summary: Vaciar el carrito
+      parameters: [{ $ref: '#/components/parameters/ClienteId' }]
+      responses:
+        '200': { $ref: '#/components/responses/Carrito' }
+        '401': { $ref: '#/components/responses/Error' }
+
+  /carrito/lineas:
+    post:
+      summary: Añadir un producto (si ya está, suma la cantidad)
+      parameters: [{ $ref: '#/components/parameters/ClienteId' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [productoId]
+              properties:
+                productoId: { $ref: '#/components/schemas/ProductoId' }
+                cantidad: { type: integer, minimum: 1, default: 1 }
+      responses:
+        '200':
+          description: Carrito actualizado. Si la cantidad se recortó por un límite, incluye `ajuste`.
+          content: { application/json: { schema: { $ref: '#/components/schemas/CarritoVista' } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '409':
+          description: El producto está agotado, retirado o no existe.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+        '422':
+          description: No cabe ninguna unidad más (límite del producto o del carrito).
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+
+  /carrito/lineas/{productoId}:
+    parameters:
+      - { $ref: '#/components/parameters/ClienteId' }
+      - name: productoId
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/ProductoId' }
+    put:
+      summary: Fijar la cantidad (0 quita la línea). Reducir siempre se permite; aumentar sigue las reglas de añadir.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [cantidad]
+              properties:
+                cantidad: { type: integer, minimum: 0 }
+      responses:
+        '200': { $ref: '#/components/responses/Carrito' }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '404':
+          description: El producto no está en el carrito.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+    delete:
+      summary: Quitar la línea (idempotente)
+      responses:
+        '200': { $ref: '#/components/responses/Carrito' }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+
+  /carrito/aceptar-precios:
+    post:
+      summary: Aceptar los cambios de precio (quita los avisos cambio_de_precio)
+      parameters: [{ $ref: '#/components/parameters/ClienteId' }]
+      responses:
+        '200': { $ref: '#/components/responses/Carrito' }
+        '401': { $ref: '#/components/responses/Error' }
+
+  # PENDIENTE(spec-003): rutas provisionales, desaparecen con el catálogo real.
+  /catalogo-provisional/productos:
+    get:
+      summary: Productos de prueba (solo fuera de producción)
+      responses:
+        '200':
+          description: Lista de productos
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ProductoProvisional' }
+  /catalogo-provisional/productos/{productoId}:
+    patch:
+      summary: Cambiar precio, estado o existencias de un producto de prueba, para probar los avisos
+      parameters:
+        - name: productoId
+          in: path
+          required: true
+          schema: { $ref: '#/components/schemas/ProductoId' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                precioCentavos: { type: integer, minimum: 0 }
+                estado: { enum: [disponible, agotado, retirado] }
+                existencias: { type: [integer, 'null'], minimum: 0 }
+                enHorario: { type: boolean }
+      responses:
+        '200':
+          description: Producto actualizado
+          content: { application/json: { schema: { $ref: '#/components/schemas/ProductoProvisional' } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+
+components:
+  parameters:
+    ClienteId:
+      name: X-Cliente-Id
+      in: header
+      required: true
+      description: PENDIENTE(spec-002). Id del cliente de prueba.
+      schema: { $ref: '#/components/schemas/ProductoId' }
+
+  responses:
+    Carrito:
+      description: Estado actual del carrito
+      content: { application/json: { schema: { $ref: '#/components/schemas/CarritoVista' } } }
+    Error:
+      description: Error con mensaje en español que indica cómo corregirlo
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+
+  schemas:
+    ProductoId:
+      type: string
+      pattern: '^[A-Za-z0-9_-]{1,64}$'
+    Centavos:
+      type: integer
+      minimum: 0
+    CarritoVista:
+      type: object
+      required: [lineas, totalUnidades, subtotalCentavos, descuentoCentavos, totalCentavos, avisos, sePuedeConfirmar, limites, actualizadoEn]
+      properties:
+        lineas: { type: array, items: { $ref: '#/components/schemas/LineaCarritoVista' } }
+        totalUnidades: { type: integer }
+        subtotalCentavos: { $ref: '#/components/schemas/Centavos' }
+        descuentoCentavos: { $ref: '#/components/schemas/Centavos' }
+        totalCentavos: { $ref: '#/components/schemas/Centavos' }
+        avisos: { type: array, items: { $ref: '#/components/schemas/AvisoCarrito' } }
+        sePuedeConfirmar: { type: boolean }
+        limites:
+          type: object
+          properties:
+            porProducto: { type: integer }
+            porCarrito: { type: integer }
+        actualizadoEn: { type: [string, 'null'], format: date-time }
+        ajuste: { $ref: '#/components/schemas/AjusteCantidad' }
+    LineaCarritoVista:
+      type: object
+      properties:
+        productoId: { $ref: '#/components/schemas/ProductoId' }
+        nombre: { type: string }
+        cantidad: { type: integer }
+        precioUnitarioCentavos: { $ref: '#/components/schemas/Centavos' }
+        subtotalCentavos: { $ref: '#/components/schemas/Centavos' }
+        descuentoCentavos: { $ref: '#/components/schemas/Centavos' }
+        totalCentavos: { $ref: '#/components/schemas/Centavos' }
+        maximoPermitido: { type: integer }
+    AvisoCarrito:
+      type: object
+      properties:
+        tipo: { enum: [agotado, retirado, fuera_de_horario, cambio_de_precio, supera_existencias, fin_de_promocion] }
+        productoId: { $ref: '#/components/schemas/ProductoId' }
+        mensaje: { type: string }
+        bloqueaConfirmacion: { type: boolean }
+        precioAnteriorCentavos: { $ref: '#/components/schemas/Centavos' }
+        precioNuevoCentavos: { $ref: '#/components/schemas/Centavos' }
+    AjusteCantidad:
+      type: object
+      properties:
+        productoId: { $ref: '#/components/schemas/ProductoId' }
+        solicitada: { type: integer }
+        aplicada: { type: integer }
+        motivo: { type: string }
+    ProductoProvisional:
+      type: object
+      properties:
+        id: { $ref: '#/components/schemas/ProductoId' }
+        nombre: { type: string }
+        precioCentavos: { $ref: '#/components/schemas/Centavos' }
+        estado: { enum: [disponible, agotado, retirado] }
+        existencias: { type: [integer, 'null'] }
+        enHorario: { type: boolean }
+    Error:
+      type: object
+      properties:
+        statusCode: { type: integer }
+        message: { type: string }
+        error: { type: string }

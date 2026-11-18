@@ -4,7 +4,7 @@ import { Marco, Portada } from "../_inicio/marco";
 import e from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "Nuestro equipo · Cafetería UTPL",
+  title: "Cafetería Online Loja",
   description: "Las personas que preparan, cobran, hornean, organizan y reparten en la cafetería.",
 };
 

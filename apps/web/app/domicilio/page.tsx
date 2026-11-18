@@ -10,7 +10,7 @@ import { Chat } from "./chat";
 import e from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "Servicio a domicilio · Cafetería UTPL",
+  title: "Cafetería Online Loja",
   description: "Zonas, horario, tiempos y costos de envío del servicio a domicilio.",
 };
 

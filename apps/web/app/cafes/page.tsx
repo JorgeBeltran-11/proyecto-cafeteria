@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CAFES, dolares } from "../_inicio/datos";
 import { Marco, Portada } from "../_inicio/marco";
+import { AgregarCafe } from "./agregar";
 import e from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "Nuestros cafés · Cafetería UTPL",
+  title: "Cafetería Online Loja",
   description: "Espresso, americano, capuchino, latte y mocaccino preparados con café de Loja.",
 };
 
@@ -34,6 +35,7 @@ export default function PaginaCafes() {
                   <span className={e.soloLector}>Precio: </span>
                   {dolares(c.precioCentavos)}
                 </p>
+                <AgregarCafe cafe={c} />
               </div>
             </li>
           ))}

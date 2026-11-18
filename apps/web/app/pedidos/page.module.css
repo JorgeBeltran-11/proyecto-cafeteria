@@ -110,6 +110,7 @@
 }
 
 .anuncio {
+  min-height: 1.5em;
   margin: 0 0 1.5rem;
   color: var(--marron);
 }
@@ -120,6 +121,273 @@
   background: var(--crema-clara);
   border: 2px dashed var(--marron);
   border-radius: 16px;
+}
+
+/* ---------- Registro del cliente ---------- */
+/* Errores: rojo #7a1f1f sobre #fffaf1 ≈ 9,6:1 · éxito #0f4421 sobre #cfeed6 ≈ 9,0:1. */
+
+.indicacion {
+  margin: -0.5rem 0 1.25rem;
+  color: var(--marron);
+}
+
+.registro {
+  display: grid;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.panelForm {
+  min-width: 0;
+  margin: 0;
+  padding: 1.5rem;
+  background: var(--crema-clara);
+  border: 2px solid var(--arena);
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(43, 26, 18, 0.08);
+}
+
+.panelTitulo {
+  float: left;
+  width: 100%;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  line-height: 1.2;
+  color: var(--cafe);
+}
+
+.panelTitulo + * {
+  clear: both;
+}
+
+.campo {
+  margin-bottom: 1.25rem;
+}
+
+.etiquetaCampo {
+  display: block;
+  margin: 0 0 0.35rem;
+  font-weight: 700;
+  color: var(--cafe);
+}
+
+.ayuda {
+  margin: 0 0 0.4rem;
+  font-size: 0.95rem;
+  color: var(--marron);
+}
+
+.entrada,
+.selector {
+  width: 100%;
+  min-height: 48px;
+  padding: 0.6rem 0.85rem;
+  font: inherit;
+  color: var(--cafe);
+  background: #ffffff;
+  border: 2px solid var(--marron);
+  border-radius: 12px;
+}
+
+.entrada:hover,
+.selector:hover {
+  border-color: var(--cafe);
+}
+
+.entrada[aria-invalid="true"],
+.selector[aria-invalid="true"] {
+  border-color: var(--rojo);
+  border-width: 3px;
+  background: #fff5f3;
+}
+
+.error {
+  margin: 0.4rem 0 0;
+  font-weight: 700;
+  color: var(--rojo);
+}
+
+.carritoVacio {
+  margin: 0 0 1.25rem;
+  padding: 1rem 1.25rem;
+  color: var(--cafe);
+  background: var(--crema);
+  border: 2px dashed var(--marron);
+  border-radius: 14px;
+}
+
+.enlace {
+  color: var(--rojo);
+  font-weight: 700;
+}
+
+/* La tabla se desplaza dentro de su contenedor si no cabe (pantallas estrechas o zoom). */
+.tablaContenedor {
+  margin: 0 0 1.25rem;
+  overflow-x: auto;
+}
+
+.tabla {
+  width: 100%;
+  min-width: 32rem;
+  border-collapse: collapse;
+  color: var(--cafe);
+}
+
+.tabla th,
+.tabla td {
+  padding: 0.6rem 0.5rem;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--arena);
+}
+
+.tabla thead th {
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--marron);
+  border-bottom: 2px solid var(--cafe);
+}
+
+.tabla tbody th {
+  font-weight: 700;
+}
+
+.tabla .numerico {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.tabla tfoot th,
+.tabla tfoot td {
+  border-bottom: 0;
+  border-top: 2px solid var(--cafe);
+}
+
+.totalEtiqueta {
+  font-size: 1.1rem;
+  letter-spacing: 0.06em;
+}
+
+.tabla .totalValor {
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--rojo);
+}
+
+.quitar {
+  min-height: 44px;
+  padding: 0.4rem 0.8rem;
+  font: inherit;
+  font-weight: 700;
+  color: var(--rojo);
+  background: transparent;
+  border: 2px solid var(--rojo);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.quitar:hover {
+  background: #fff5f3;
+}
+
+.agregarAqui {
+  padding-top: 1rem;
+  border-top: 1px solid var(--arena);
+}
+
+.agregarFila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.agregarFila .selector {
+  flex: 1 1 12rem;
+  width: auto;
+}
+
+.botonSecundario {
+  min-height: 44px;
+  padding: 0.5rem 1.15rem;
+  font: inherit;
+  font-weight: 700;
+  color: var(--crema-clara);
+  background: var(--cafe);
+  border: 2px solid var(--cafe);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.botonSecundario:hover {
+  background: var(--cafe-medio);
+}
+
+.enviar {
+  width: 100%;
+  min-height: 52px;
+  margin-top: 0.5rem;
+  font: inherit;
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  color: var(--crema-clara);
+  background: var(--rojo);
+  border: 2px solid var(--rojo);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.enviar:hover {
+  background: #5e1717;
+}
+
+.exito {
+  margin: 1rem 0 0;
+  padding: 0.75rem 1rem;
+  font-weight: 700;
+  color: #0f4421;
+  background: #cfeed6;
+  border: 2px solid #0f4421;
+  border-radius: 14px;
+}
+
+/* ---------- Datos del cliente y cambio de estado en las tarjetas ---------- */
+
+.datosCliente {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0 0 0.75rem;
+  color: var(--cafe);
+}
+
+.datosCliente div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.4rem;
+}
+
+.datosCliente dt {
+  color: var(--marron);
+}
+
+.datosCliente dt::after {
+  content: ":";
+}
+
+.datosCliente dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.cambioEstado {
+  margin: 0 0 1rem;
 }
 
 /* ---------- Tarjetas ---------- */
@@ -249,6 +517,10 @@
 @media (min-width: 60rem) {
   .contenido {
     padding: 4rem 1.5rem 5.5rem;
+  }
+
+  .registro {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
   }
 
   .rejilla {

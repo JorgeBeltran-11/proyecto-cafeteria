@@ -172,86 +172,26 @@ export function responderChat(mensaje: string): IdRespuesta {
 export const ESTADOS_PEDIDO = ["Recibido", "En preparación", "Listo", "Entregado"] as const;
 export type EstadoPedido = (typeof ESTADOS_PEDIDO)[number];
 
+/** Número del primer pedido registrado; los siguientes son consecutivos. */
+export const PRIMER_NUMERO_PEDIDO = 1001;
+
+export type LineaPedido = { nombre: string; cantidad: number; precioCentavos: number };
+
+/** Pedido enviado desde /pedidos (se guarda en el navegador, no en la API). */
 export type Pedido = {
-  numero: string;
-  cliente: string;
-  productos: { nombre: string; cantidad: number }[];
+  numero: number;
+  nombres: string;
+  apellidos: string;
+  cedula: string;
+  celular: string;
+  direccion: string;
+  productos: LineaPedido[];
   totalCentavos: number;
+  /** Hora de registro "HH:MM" y marca ISO para <time dateTime>. */
   hora: string;
+  fecha: string;
   estado: EstadoPedido;
 };
-
-export const PEDIDOS: Pedido[] = [
-  {
-    numero: "1042",
-    cliente: "Valeria Jiménez",
-    productos: [
-      { nombre: "Capuchino", cantidad: 2 },
-      { nombre: "Croissant", cantidad: 1 },
-    ],
-    totalCentavos: 650,
-    hora: "07:45",
-    estado: "Entregado",
-  },
-  {
-    numero: "1043",
-    cliente: "Mateo Castillo",
-    productos: [{ nombre: "Espresso", cantidad: 1 }],
-    totalCentavos: 150,
-    hora: "08:10",
-    estado: "Entregado",
-  },
-  {
-    numero: "1044",
-    cliente: "Camila Rojas",
-    productos: [
-      { nombre: "Latte", cantidad: 1 },
-      { nombre: "Humita", cantidad: 2 },
-    ],
-    totalCentavos: 575,
-    hora: "08:32",
-    estado: "Listo",
-  },
-  {
-    numero: "1045",
-    cliente: "Sebastián Paredes",
-    productos: [
-      { nombre: "Americano", cantidad: 2 },
-      { nombre: "Tamal lojano", cantidad: 2 },
-    ],
-    totalCentavos: 750,
-    hora: "08:51",
-    estado: "En preparación",
-  },
-  {
-    numero: "1046",
-    cliente: "Ana Lucía Vivanco",
-    productos: [{ nombre: "Mocaccino", cantidad: 1 }],
-    totalCentavos: 300,
-    hora: "09:05",
-    estado: "En preparación",
-  },
-  {
-    numero: "1047",
-    cliente: "Diego Granda",
-    productos: [
-      { nombre: "Capuchino", cantidad: 1 },
-      { nombre: "Espresso", cantidad: 1 },
-      { nombre: "Bolón de verde", cantidad: 1 },
-    ],
-    totalCentavos: 700,
-    hora: "09:18",
-    estado: "Recibido",
-  },
-  {
-    numero: "1048",
-    cliente: "Paula Ordóñez",
-    productos: [{ nombre: "Latte", cantidad: 2 }],
-    totalCentavos: 550,
-    hora: "09:24",
-    estado: "Recibido",
-  },
-];
 
 /* ---------- /equipo ---------- */
 

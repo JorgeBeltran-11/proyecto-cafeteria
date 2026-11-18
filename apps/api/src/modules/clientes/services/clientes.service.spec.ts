@@ -6,7 +6,128 @@ import { ClientesService } from './clientes.service';
 describe('ClientesService', () => {
   let service: ClientesService;
 
+  describe('registerClientProfile', () => {
+    it('crea el perfil y registra el consentimiento en una transacción', async () => {
+      transactionMock.clientProfile.create.mockResolvedValue({
+        id: 'client-1',
+        fullName: 'Leonardo Mendieta',
+        email: 'leonardo@example.com',
+      });
+
+      transactionMock.consentRecord.create.mockResolvedValue({
+        id: 'consent-1',
+      });
+
+      const result = await service.registerClientProfile({
+        fullName: ' Leonardo Mendieta ',
+        email: ' LEONARDO@EXAMPLE.COM ',
+      });
+
+      expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
+
+      expect(transactionMock.clientProfile.create).toHaveBeenCalledWith({
+        data: {
+          fullName: 'Leonardo Mendieta',
+          email: 'leonardo@example.com',
+          phone: null,
+          preferences: {},
+          locale: 'es-EC',
+        },
+      });
+
+      expect(transactionMock.consentRecord.create).toHaveBeenCalledWith({
+        data: {
+          clientId: 'client-1',
+          purpose: 'privacy_policy',
+          state: 'granted',
+          source: 'self-service',
+        },
+      });
+
+      expect(result.id).toBe('client-1');
+    });
+
+    it('propaga el error si falla el registro del consentimiento', async () => {
+      transactionMock.clientProfile.create.mockResolvedValue({
+        id: 'client-1',
+        email: 'leonardo@example.com',
+      });
+
+      const consentError = new Error('Error al registrar consentimiento');
+      transactionMock.consentRecord.create.mockRejectedValue(consentError);
+
+      await expect(
+        service.registerClientProfile({
+          fullName: 'Leonardo Mendieta',
+          email: 'leonardo@example.com',
+        }),
+      ).rejects.toBe(consentError);
+
+      expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('rollbackClientRegistration', () => {
+    it('elimina el consentimiento y el perfil del registro incompleto', async () => {
+      transactionMock.clientProfile.findUnique.mockResolvedValue({
+        id: 'client-1',
+        email: 'leonardo@example.com',
+      });
+
+      transactionMock.clientProfile.deleteMany.mockResolvedValue({
+        count: 1,
+      });
+
+      const result = await service.rollbackClientRegistration(
+        'client-1',
+        ' LEONARDO@EXAMPLE.COM ',
+      );
+
+      expect(transactionMock.consentRecord.deleteMany).toHaveBeenCalledWith({
+        where: { clientId: 'client-1' },
+      });
+
+      expect(transactionMock.clientProfile.deleteMany).toHaveBeenCalledWith({
+        where: {
+          id: 'client-1',
+          email: 'leonardo@example.com',
+        },
+      });
+
+      expect(result).toBe(true);
+    });
+
+    it('no elimina datos cuando el correo no coincide', async () => {
+      transactionMock.clientProfile.findUnique.mockResolvedValue({
+        id: 'client-1',
+        email: 'otro@example.com',
+      });
+
+      const result = await service.rollbackClientRegistration(
+        'client-1',
+        'leonardo@example.com',
+      );
+
+      expect(transactionMock.consentRecord.deleteMany).not.toHaveBeenCalled();
+      expect(transactionMock.clientProfile.deleteMany).not.toHaveBeenCalled();
+      expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
+      expect(result).toBe(false);
+    });
+  });
+
+  const transactionMock = {
+    clientProfile: {
+      create: jest.fn(),
+      findUnique: jest.fn(),
+      deleteMany: jest.fn(),
+    },
+    consentRecord: {
+      create: jest.fn(),
+      deleteMany: jest.fn(),
+    },
+  };
   const prismaMock = {
+    $transaction: jest.fn(),
     clientProfile: {
       create: jest.fn(),
       findUnique: jest.fn(),
@@ -23,6 +144,9 @@ describe('ClientesService', () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
+    prismaMock.$transaction.mockImplementation(
+      (callback) => callback(transactionMock),
+    );
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -115,11 +239,7 @@ describe('ClientesService', () => {
         state: 'granted',
       });
 
-      await service.recordConsent(
-        'client-1',
-        'marketing',
-        'granted',
-      );
+      await service.recordConsent('client-1', 'marketing', 'granted');
 
       expect(prismaMock.consentRecord.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
@@ -153,10 +273,7 @@ describe('ClientesService', () => {
         status: 'pending',
       });
 
-      await service.createDataRightsRequest(
-        'client-1',
-        'portability',
-      );
+      await service.createDataRightsRequest('client-1', 'portability');
 
       expect(prismaMock.dataRightsRequest.create).toHaveBeenCalledWith({
         data: {

@@ -36,21 +36,65 @@ export class ClientesService {
     });
   }
 
+  async registerClientProfile(input: CreateClientProfileInput) {
+    return this.prisma.$transaction(async (tx) => {
+      const profile = await tx.clientProfile.create({
+        data: {
+          fullName: input.fullName.trim(),
+          email: input.email.trim().toLowerCase(),
+          phone: input.phone?.trim() || null,
+          preferences: (input.preferences ?? {}) as Prisma.InputJsonValue,
+          locale: input.locale ?? 'es-EC',
+        },
+      });
 
-  async createProfileInTransaction(
-    input: CreateClientProfileInput,
-    tx: Prisma.TransactionClient,
-  ) {
-    return tx.clientProfile.create({
-      data: {
-        fullName: input.fullName.trim(),
-        email: input.email.trim().toLowerCase(),
-        phone: input.phone?.trim() || null,
-        preferences: (input.preferences ?? {}) as Prisma.InputJsonValue,
-        locale: input.locale ?? 'es-EC',
-      },
+      await tx.consentRecord.create({
+        data: {
+          clientId: profile.id,
+          purpose: 'privacy_policy',
+          state: 'granted',
+          source: 'self-service',
+        },
+      });
+
+      return profile;
     });
   }
+
+  /**
+   * Revierte un perfil creado durante un registro que no pudo completarse.
+   *
+   * Debe ser invocado exclusivamente por Identidad después de comprobar
+   * que no existe una cuenta asociada al clientId.
+   */
+  async rollbackClientRegistration(clientId: string, expectedEmail: string) {
+    return this.prisma.$transaction(async (tx) => {
+      const normalizedEmail = expectedEmail.trim().toLowerCase();
+
+      const profile = await tx.clientProfile.findUnique({
+        where: { id: clientId },
+        select: { id: true, email: true },
+      });
+
+      if (!profile || profile.email !== normalizedEmail) {
+        return false;
+      }
+
+      await tx.consentRecord.deleteMany({
+        where: { clientId },
+      });
+
+      const deleted = await tx.clientProfile.deleteMany({
+        where: {
+          id: clientId,
+          email: normalizedEmail,
+        },
+      });
+
+      return deleted.count === 1;
+    });
+  }
+
   async findById(id: string) {
     return this.prisma.clientProfile.findUnique({
       where: { id },
@@ -115,21 +159,6 @@ export class ClientesService {
     });
   }
 
-
-  async recordConsentInTransaction(
-    clientId: string,
-    purpose: string,
-    tx: Prisma.TransactionClient,
-  ) {
-    return tx.consentRecord.create({
-      data: {
-        clientId,
-        purpose,
-        state: 'granted',
-        source: 'self-service',
-      },
-    });
-  }
   async getConsents(clientId: string) {
     const client = await this.findById(clientId);
 

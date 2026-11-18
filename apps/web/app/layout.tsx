@@ -1,15 +1,19 @@
 import type { Metadata } from "next";
+import { IdentitySessionProvider } from "./identidad/session-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Proyecto cafetería",
-  description: "Estado de la API y de la base de datos de la cafetería.",
+  title: "Cafetería | Un buen café cambia tu día",
+  description:
+    "Descubre nuestra cafetería y crea tu cuenta para comenzar tu experiencia.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="es">
-      <body>{children}</body>
+      <body>
+        <IdentitySessionProvider>{children}</IdentitySessionProvider>
+      </body>
     </html>
   );
 }

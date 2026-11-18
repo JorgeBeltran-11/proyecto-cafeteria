@@ -9,15 +9,31 @@ import { useSyncExternalStore } from "react";
  * - Todo acceso a localStorage va en try/catch: en modo privado o con el almacenamiento bloqueado
  *   el valor sigue funcionando solo en memoria.
  * - Escucha el evento `storage` para sincronizarse con otras pestañas.
+ * - `migrar` (opcional) transforma datos guardados con un formato anterior: si devuelve un valor,
+ *   se usa y se vuelve a guardar; si devuelve `undefined`, el dato se deja como está.
  */
-export function crearAlmacen<T>(clave: string, inicial: T, validar: (dato: unknown) => T) {
+export function crearAlmacen<T>(
+  clave: string,
+  inicial: T,
+  validar: (dato: unknown) => T,
+  migrar?: (dato: T) => T | undefined,
+) {
   let valor: T | null = null;
   const oyentes = new Set<() => void>();
 
   function cargar(): T {
     try {
       const texto = window.localStorage.getItem(clave);
-      return texto ? validar(JSON.parse(texto)) : inicial;
+      if (!texto) return inicial;
+      const dato = validar(JSON.parse(texto));
+      const migrado = migrar?.(dato);
+      if (migrado === undefined) return dato;
+      try {
+        window.localStorage.setItem(clave, JSON.stringify(migrado));
+      } catch {
+        /* Sin almacenamiento: la migración queda solo en memoria. */
+      }
+      return migrado;
     } catch {
       return inicial;
     }

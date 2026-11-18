@@ -189,20 +189,25 @@
   }
 }
 
+/* 1 columna en móvil, 2 en tablet y 5 en pantallas grandes (dos filas de cinco). */
 @media (min-width: 56rem) {
   .seccion {
     padding: 4.5rem 1.5rem 5.5rem;
   }
-
-  .rejilla {
-    grid-template-columns: repeat(3, 1fr);
-  }
 }
 
 @media (min-width: 72rem) {
+  .seccion {
+    max-width: 82rem;
+  }
+
   .rejilla {
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 1.25rem;
+  }
+
+  .cuerpo {
+    padding: 1.1rem 1.1rem 1.25rem;
   }
 }
 

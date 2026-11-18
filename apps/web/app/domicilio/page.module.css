@@ -5,10 +5,24 @@
  *   crema #fffaf1 sobre rojo #7a1f1f ≈ 9,6:1
  */
 
+/*
+ * Reserva para el botón flotante de WhatsApp (fijo a 24 px de la derecha y de abajo): margen
+ * derecho = 24 + botón + holgura; margen inferior = 24 + botón + 24. Así nunca tapa texto.
+ */
+.pagina {
+  --reserva-derecha: calc(24px + 64px + 16px);
+  --reserva-inferior: calc(24px + 64px + 24px);
+}
+
+/* La portada conserva su fondo a todo lo ancho; solo se aparta su contenido. */
+.pagina > section {
+  padding-right: max(1rem, calc(var(--reserva-derecha) - (100vw - 72rem) / 2));
+}
+
 .contenido {
   max-width: 75rem;
   margin: 0 auto;
-  padding: 3.5rem 1rem 4.5rem;
+  padding: 3.5rem var(--reserva-derecha) max(4.5rem, var(--reserva-inferior)) 1rem;
   display: grid;
   gap: 3rem;
 }
@@ -138,81 +152,103 @@
   border-radius: 14px;
 }
 
-/* ---------- Chat simulado ---------- */
+/* ---------- Chat flotante (abajo a la derecha) ---------- */
 
-.columnaChat {
-  align-self: start;
-}
-
+/*
+ * Contenedor fijo: botón flotante y, encima, el panel. --empuje-pie (lo calcula chat.tsx) sube
+ * todo cuando el pie de página entra en pantalla, para no tapar sus enlaces.
+ */
 .chat {
+  --margen-flotante: 24px;
+  --tam-boton: 64px;
+  position: fixed;
+  right: var(--margen-flotante);
+  bottom: calc(var(--margen-flotante) + var(--empuje-pie, 0px));
+  z-index: 40;
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-direction: column-reverse;
+  align-items: flex-end;
   gap: 0.75rem;
-  text-align: center;
+  max-width: calc(100vw - 2 * var(--margen-flotante));
 }
 
-
+/* Círculo blanco con borde verde fino (#15803d sobre blanco ≈ 5,0:1; sobre crema ≈ 4,8:1). */
 .botonChat {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
-  min-width: 44px;
-  min-height: 44px;
-  padding: 0.5rem;
-  color: var(--cafe);
-  background: transparent;
-  border: 0;
-  border-radius: 20px;
-  font-size: 1.15rem;
-  font-weight: 700;
-}
-
-.botonChat:hover {
-  background: transparent;
-}
-
-.circuloChat {
+  position: relative;
   display: grid;
   place-items: center;
-  width: 6rem;
-  height: 6rem;
-  color: #ffffff;
+  width: var(--tam-boton);
+  height: var(--tam-boton);
+  padding: 0;
   background: #ffffff;
-  border: 4px solid #14532d;
+  border: 2px solid #15803d;
   border-radius: 50%;
-  box-shadow: 0 12px 26px rgba(20, 83, 45, 0.4);
+  box-shadow: 0 6px 16px rgba(20, 83, 45, 0.25);
+  cursor: pointer;
   transition:
     transform 0.25s ease,
     box-shadow 0.25s ease;
 }
 
-.botonChat:hover .circuloChat {
-  transform: scale(1.06);
-  box-shadow: 0 16px 32px rgba(20, 83, 45, 0.5);
+/* Anillo verde que late cada pocos segundos para llamar la atención. */
+.botonChat::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border: 3px solid #25d366;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  animation: latido 3s ease-out 1s infinite;
 }
 
-.botonChat[aria-expanded="true"] .circuloChat {
-  border-color: #0d3b1f;
-  background: #dcf3e2;
+.logoChat {
+  display: block;
+  width: 36px;
+  height: 36px;
+  transform-origin: 50% 60%;
 }
 
-.textoBotonChat {
-  text-decoration: none;
+.botonChat:hover,
+.botonChat:focus-visible {
+  transform: scale(1.1);
+  box-shadow: 0 12px 28px rgba(20, 83, 45, 0.45);
+}
+
+.botonChat:hover .logoChat,
+.botonChat:focus-visible .logoChat {
+  animation: timbre 0.6s ease-in-out;
+}
+
+.botonChat[aria-expanded="true"] {
+  box-shadow: 0 12px 28px rgba(20, 83, 45, 0.45);
+}
+
+/* Mientras el panel está abierto, el anillo deja de latir. */
+.botonChat[aria-expanded="true"]::before {
+  animation: none;
 }
 
 .panel {
-  width: 100%;
-  max-width: 26rem;
-  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  width: min(26rem, calc(100vw - 2 * var(--margen-flotante)));
+  max-height: calc(
+    100dvh - 2 * var(--margen-flotante) - var(--empuje-pie, 0px) - var(--tam-boton) - 0.75rem
+  );
   overflow: hidden;
   text-align: left;
   background: #fffdf8;
   border: 2px solid #14532d;
   border-radius: 20px;
-  box-shadow: 0 20px 40px rgba(43, 26, 18, 0.25);
+  box-shadow: 0 20px 40px rgba(43, 26, 18, 0.3);
+  transform-origin: bottom right;
   animation: abrir 0.25s ease-out both;
+}
+
+/* Si falta alto, solo se encoge la lista de mensajes (que ya tiene scroll). */
+.panel > :not(.mensajes) {
+  flex-shrink: 0;
 }
 
 .panelCabecera {
@@ -250,14 +286,18 @@
 
 
 .cerrar {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 44px;
+  height: 44px;
   margin-left: auto;
-  min-height: 44px;
-  padding: 0.35rem 0.9rem;
-  font-size: 0.95rem;
+  padding: 0;
   color: #14532d;
   background: #ffffff;
   border: 2px solid #ffffff;
-  border-radius: 999px;
+  border-radius: 50%;
+  cursor: pointer;
 }
 
 .cerrar:hover {
@@ -268,7 +308,9 @@
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
+  flex: 1 1 auto;
   height: 20rem;
+  min-height: 6rem;
   margin: 0;
   padding: 1rem;
   overflow-y: auto;
@@ -402,6 +444,42 @@
   }
 }
 
+/* Anillo: crece y se desvanece en el primer tercio; el resto del ciclo queda en reposo. */
+@keyframes latido {
+  0% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  35% {
+    opacity: 0;
+    transform: scale(1.45);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.45);
+  }
+}
+
+/* Logotipo que se balancea como un teléfono que suena. */
+@keyframes timbre {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  20% {
+    transform: rotate(-14deg);
+  }
+  40% {
+    transform: rotate(12deg);
+  }
+  60% {
+    transform: rotate(-8deg);
+  }
+  80% {
+    transform: rotate(5deg);
+  }
+}
+
 @keyframes entrar {
   from {
     opacity: 0;
@@ -413,17 +491,37 @@
   }
 }
 
-/* A la derecha en pantallas anchas; debajo en móvil. */
-@media (min-width: 60rem) {
-  .contenido {
-    grid-template-columns: minmax(0, 1fr) 26rem;
-    gap: 3.5rem;
-    padding: 4.5rem 1.5rem 5.5rem;
+/* Móvil: botón de 56 px y logotipo un poco menor; mismo margen de 24 px. */
+@media (max-width: 40rem) {
+  .chat {
+    --tam-boton: 56px;
   }
 
-  .columnaChat {
-    position: sticky;
-    top: calc(var(--altura-cabecera) + 1.5rem);
+  .logoChat {
+    width: 32px;
+    height: 32px;
+  }
+
+  .pagina {
+    --reserva-derecha: calc(24px + 56px + 12px);
+    --reserva-inferior: calc(24px + 56px + 24px);
+  }
+
+  .mensajes {
+    height: 16rem;
+  }
+}
+
+@media (min-width: 60rem) {
+  .contenido {
+    gap: 3.5rem;
+    /* Si ya sobra margen a los lados de la columna, la reserva derecha se descuenta de él. */
+    padding: 4.5rem max(1.5rem, calc(var(--reserva-derecha) - (100vw - 75rem) / 2))
+      max(5.5rem, var(--reserva-inferior)) 1.5rem;
+  }
+
+  .detalles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -435,12 +533,20 @@
     animation: none;
   }
 
-  .circuloChat,
+  .botonChat,
   .tabla tbody tr {
     transition: none;
   }
 
-  .botonChat:hover .circuloChat {
+  /* Sin latido, sin crecer ni balancearse: solo cambia la sombra. */
+  .botonChat::before,
+  .botonChat:hover .logoChat,
+  .botonChat:focus-visible .logoChat {
+    animation: none;
+  }
+
+  .botonChat:hover,
+  .botonChat:focus-visible {
     transform: none;
   }
 }

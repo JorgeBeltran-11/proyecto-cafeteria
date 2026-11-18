@@ -365,18 +365,18 @@
   margin-top: 2.5rem;
 }
 
+/* Botón circular solo con la flecha (nombre accesible en aria-label). */
 .volverArriba {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-height: 44px;
-  padding: 0.5rem 1rem;
-  font: inherit;
-  font-weight: 600;
+  display: inline-grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  margin-left: auto;
   color: var(--caramelo);
   background: transparent;
   border: 2px solid var(--caramelo);
-  border-radius: 999px;
+  border-radius: 50%;
   cursor: pointer;
 }
 

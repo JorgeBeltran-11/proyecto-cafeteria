@@ -86,8 +86,7 @@
 }
 
 .botonPrincipal,
-.botonSecundario,
-.botonPrincipalOscuro {
+.botonSecundario {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -117,8 +116,7 @@
 }
 
 .botonPrincipal:hover,
-.botonSecundario:hover,
-.botonPrincipalOscuro:hover {
+.botonSecundario:hover {
   transform: translateY(-2px);
   text-decoration: underline;
   text-decoration-thickness: 2px;
@@ -315,48 +313,10 @@
 
 /* Destacados */
 
-.anuncioDestacados {
-  margin: 0;
-}
-
-.avisoAmable {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 1rem;
-  margin: 0 0 1.5rem;
-  padding: 1.25rem 1.5rem;
-  background: var(--crema);
-  border: 2px dashed var(--marron);
-  border-radius: 16px;
-  color: var(--cafe);
-}
-
-.avisoAmable p {
-  margin: 0;
-  flex: 1 1 18rem;
-}
-
-.pagina .botonSecundarioClaro {
-  color: var(--cafe);
-  background: transparent;
-  border: 2px solid var(--cafe);
-  border-radius: 999px;
-}
-
-.pagina .botonSecundarioClaro:hover {
-  background: var(--arena);
-}
-
-.pagina .botonSecundarioClaro:focus-visible {
-  outline-color: var(--rojo);
-  box-shadow: none;
-}
-
 .rejillaProductos {
   display: grid;
   gap: 1.25rem;
-  margin: 0 0 2rem;
+  margin: 0;
   padding: 0;
   list-style: none;
 }
@@ -377,18 +337,25 @@
   box-shadow: 0 14px 28px rgba(43, 26, 18, 0.18);
 }
 
-.productoImagen {
+.productoIlustracion {
+  display: grid;
+  place-items: center;
+  padding: 1.25rem 1rem 0.5rem;
+  background:
+    url("/inicio/granos.svg") 0 0 / 120px 120px repeat,
+    radial-gradient(circle at 50% 70%, #6b3f26 0%, transparent 65%),
+    var(--cafe);
+}
+
+.productoIlustracion img {
   display: block;
-  width: 100%;
+  width: min(100%, 14rem);
   height: auto;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  background: var(--arena);
   transition: transform 0.4s ease;
 }
 
-.producto:hover .productoImagen {
-  transform: scale(1.04);
+.producto:hover .productoIlustracion img {
+  transform: scale(1.07) rotate(-3deg);
 }
 
 .productoTexto {
@@ -407,7 +374,7 @@
 
 .productoPrecio {
   display: inline-block;
-  margin: 0 0 0.5rem;
+  margin: 0;
   padding: 0.1rem 0.7rem;
   font-weight: 700;
   font-size: 1.1rem;
@@ -416,49 +383,11 @@
   border-radius: 999px;
 }
 
-.productoEstado {
-  margin: 0;
-  font-size: 0.95rem;
+.productoDescripcion {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  line-height: 1.5;
   color: var(--marron);
-}
-
-.esqueleto .productoImagen,
-.lineaEsqueleto,
-.lineaEsqueletoCorta {
-  background: linear-gradient(90deg, var(--arena) 25%, var(--crema) 50%, var(--arena) 75%);
-  background-size: 200% 100%;
-  animation: brillo 1.4s linear infinite;
-}
-
-.lineaEsqueleto,
-.lineaEsqueletoCorta {
-  display: block;
-  height: 1rem;
-  margin: 0.4rem 0 0.75rem;
-  border-radius: 6px;
-}
-
-.lineaEsqueletoCorta {
-  width: 40%;
-}
-
-.verTodo {
-  margin: 0;
-}
-
-.botonPrincipalOscuro {
-  background: var(--cafe);
-  color: var(--crema);
-  box-shadow: 0 8px 18px rgba(43, 26, 18, 0.25);
-}
-
-.botonPrincipalOscuro:hover {
-  background: var(--rojo);
-}
-
-.pagina .botonPrincipalOscuro:focus-visible {
-  outline-color: var(--rojo);
-  box-shadow: none;
 }
 
 .soloLector {
@@ -528,22 +457,7 @@
   }
 }
 
-@keyframes brillo {
-  from {
-    background-position: 200% 0;
-  }
-  to {
-    background-position: -200% 0;
-  }
-}
-
 /* ---------- Tamaños mayores (móvil primero) ---------- */
-
-@media (min-width: 40rem) {
-  .rejillaProductos {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
 
 @media (min-width: 56rem) {
   .heroInterior {
@@ -559,7 +473,7 @@
   }
 
   .rejillaProductos {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .seccion {
@@ -572,10 +486,7 @@
 @media (prefers-reduced-motion: reduce) {
   .heroTexto,
   .heroIlustracion,
-  .vapor path,
-  .esqueleto .productoImagen,
-  .lineaEsqueleto,
-  .lineaEsqueletoCorta {
+  .vapor path {
     animation: none;
   }
 
@@ -597,10 +508,9 @@
   .tarjeta:hover .tarjetaFlecha,
   .tarjeta:focus-visible .tarjetaFlecha,
   .producto:hover,
-  .producto:hover .productoImagen,
+  .producto:hover .productoIlustracion img,
   .botonPrincipal:hover,
-  .botonSecundario:hover,
-  .botonPrincipalOscuro:hover {
+  .botonSecundario:hover {
     transform: none;
   }
 }

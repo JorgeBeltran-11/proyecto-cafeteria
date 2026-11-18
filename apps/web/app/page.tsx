@@ -105,7 +105,7 @@ export default function Home() {
               <h2 id="titulo-destacados" className={estilos.seccionTitulo}>
                 Destacados de hoy
               </h2>
-              <p className={estilos.seccionIntro}>Recién salidos de la carta publicada.</p>
+              <p className={estilos.seccionIntro}>Tres favoritos de nuestra carta de cafés.</p>
             </Aparecer>
             <Aparecer retraso={120}>
               <Destacados />

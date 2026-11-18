@@ -18,7 +18,7 @@ function expectHealthResponse(body: Record<string, unknown>): void {
 }
 
 async function crearApp(
-  prismaFalso?: Partial<PrismaService>,
+  prismaFalso?: object,
 ): Promise<INestApplication<App>> {
   let builder = Test.createTestingModule({ imports: [AppModule] });
   if (prismaFalso) {
@@ -68,7 +68,7 @@ describe('GET /health', () => {
         `Can't reach database at file:/var/secreto/dev.db (DATABASE_URL)`,
       );
       app = await crearApp({
-        $queryRaw: jest.fn().mockRejectedValue(error),
+        $queryRaw: () => Promise.reject(error),
       });
     });
 

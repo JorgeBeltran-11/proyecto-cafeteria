@@ -2,9 +2,26 @@
   "moduleFileExtensions": ["js", "json", "ts"],
   "rootDir": ".",
   "testEnvironment": "node",
+  "maxWorkers": 1,
   "testRegex": ".e2e-spec.ts$",
-  "transform": {
-    "^.+\\.(t|j)s$": "ts-jest"
+  "setupFiles": ["<rootDir>/jest-e2e-setup.cjs"],
+  "preset": "ts-jest/presets/default-esm",
+  "extensionsToTreatAsEsm": [".ts"],
+  "moduleNameMapper": {
+    "^(\\.{1,2}/.*)\\.js$": "$1"
   },
-  "globalSetup": "<rootDir>/global-setup.ts"
+  "transform": {
+    "^.+\\.(t|j)s$": [
+      "ts-jest",
+      {
+        "useESM": true,
+        "tsconfig": {
+          "module": "ESNext",
+          "moduleResolution": "Bundler"
+        }
+      }
+    ]
+  },
+  "globalSetup": "<rootDir>/global-setup.cjs",
+  "globalTeardown": "<rootDir>/global-teardown.cjs"
 }

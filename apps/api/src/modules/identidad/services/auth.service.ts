@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
@@ -17,6 +18,8 @@ const REGISTER_MESSAGE =
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly clientes: ClientesService,
@@ -37,24 +40,30 @@ export class AuthService {
     const passwordHash = await this.passwords.hashPassword(dto.password);
     const token = randomBytes(32).toString('hex');
     const tokenHash = createHash('sha256').update(token).digest('hex');
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
+
+    let profile: Awaited<
+      ReturnType<ClientesService['registerClientProfile']>
+    >;
+
+    try {
+      profile = await this.clientes.registerClientProfile({
+        fullName: dto.fullName,
+        email,
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        return { message: REGISTER_MESSAGE };
+      }
+
+      throw error;
+    }
 
     try {
       await this.prisma.$transaction(async (tx) => {
-        const profile = await this.clientes.createProfileInTransaction(
-          {
-            fullName: dto.fullName,
-            email,
-          },
-          tx,
-        );
-
-        await this.clientes.recordConsentInTransaction(
-          profile.id,
-          'privacy_policy',
-          tx,
-        );
-
         const account = await tx.account.create({
           data: {
             clientId: profile.id,
@@ -73,12 +82,39 @@ export class AuthService {
         });
       });
     } catch (error) {
+      // Antes de compensar, comprobar que la cuenta no llegó a crearse.
+      // Clientes no consulta ni administra la tabla Account.
+      let accountExists = true;
+
+      try {
+        const account = await this.prisma.account.findUnique({
+          where: { clientId: profile.id },
+          select: { id: true },
+        });
+
+        accountExists = account != null;
+      } catch {
+        // Si no podemos comprobarlo, no eliminamos el perfil.
+        accountExists = true;
+      }
+
+      if (!accountExists) {
+        try {
+          await this.clientes.rollbackClientRegistration(profile.id, email);
+        } catch {
+          this.logger.error(
+            'No se pudo revertir el registro incompleto del cliente.',
+          );
+        }
+      }
+
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === 'P2002'
       ) {
         return { message: REGISTER_MESSAGE };
       }
+
       throw error;
     }
 

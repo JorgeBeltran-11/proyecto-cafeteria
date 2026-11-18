@@ -1,0 +1,267 @@
+/*
+ * /pedidos. Tokens en _inicio/marco.module.css. El estado siempre se indica con texto, además del
+ * color. Contrastes AAA de las etiquetas de estado:
+ *   Recibido #12325a / #dbe7f5 ≈ 10,3:1 · En preparación #5a3300 / #fbe3b8 ≈ 8,8:1
+ *   Listo #0f4421 / #cfeed6 ≈ 9,0:1 · Entregado #3d2f27 / #e6e1da ≈ 9,9:1
+ *   caramelo #f2c27e sobre café #2b1a12 ≈ 10,2:1 · marrón #5a3a28 sobre #fffaf1 ≈ 9,8:1
+ */
+
+.contenido {
+  max-width: 75rem;
+  margin: 0 auto;
+  padding: 3rem 1rem 4.5rem;
+}
+
+.titulo {
+  margin: 3rem 0 1.25rem;
+  font-family: var(--serif);
+  font-size: clamp(1.7rem, 4.5vw, 2.3rem);
+  line-height: 1.15;
+  color: var(--cafe);
+}
+
+.titulo::after {
+  content: "";
+  display: block;
+  width: 4rem;
+  height: 4px;
+  margin-top: 0.75rem;
+  background: var(--rojo);
+  border-radius: 2px;
+}
+
+/* ---------- Resumen ---------- */
+
+.resumen {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+}
+
+.dato {
+  padding: 1.25rem 1.5rem;
+  background:
+    url("/inicio/granos.svg") 0 0 / 120px 120px repeat,
+    var(--cafe);
+  color: var(--crema);
+  border-radius: 18px;
+}
+
+.dato dt {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--caramelo);
+}
+
+.dato dd {
+  margin: 0.25rem 0 0;
+  font-family: var(--serif);
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.datoDestacado {
+  background:
+    url("/inicio/granos.svg") 0 0 / 120px 120px repeat,
+    var(--rojo);
+}
+
+.datoDestacado dt {
+  color: var(--crema);
+}
+
+/* ---------- Filtros ---------- */
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+}
+
+.filtro {
+  min-height: 44px;
+  padding: 0.4rem 1rem;
+  font-size: 1rem;
+  color: var(--cafe);
+  background: var(--crema-clara);
+  border: 2px solid var(--cafe);
+  border-radius: 999px;
+}
+
+.filtro:hover {
+  background: var(--arena);
+}
+
+.filtro[aria-pressed="true"] {
+  color: var(--crema);
+  background: var(--cafe);
+}
+
+.filtro[aria-pressed="true"]:hover {
+  background: var(--cafe-medio);
+}
+
+.cuenta {
+  font-weight: 400;
+}
+
+.anuncio {
+  margin: 0 0 1.5rem;
+  color: var(--marron);
+}
+
+.vacio {
+  padding: 1.5rem;
+  color: var(--cafe);
+  background: var(--crema-clara);
+  border: 2px dashed var(--marron);
+  border-radius: 16px;
+}
+
+/* ---------- Tarjetas ---------- */
+
+.rejilla {
+  display: grid;
+  gap: 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tarjeta {
+  padding: 1.25rem 1.5rem;
+  background: var(--crema-clara);
+  border: 2px solid var(--arena);
+  border-radius: 18px;
+  box-shadow: 0 2px 8px rgba(43, 26, 18, 0.08);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.tarjeta:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 28px rgba(43, 26, 18, 0.18);
+}
+
+.tarjetaCabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.numero {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  color: var(--cafe);
+}
+
+.estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0.75rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border: 2px solid currentColor;
+  border-radius: 999px;
+}
+
+.recibido {
+  color: #12325a;
+  background: #dbe7f5;
+}
+
+.preparacion {
+  color: #5a3300;
+  background: #fbe3b8;
+}
+
+.listo {
+  color: #0f4421;
+  background: #cfeed6;
+}
+
+.entregado {
+  color: #3d2f27;
+  background: #e6e1da;
+}
+
+.cliente {
+  margin: 0 0 0.5rem;
+  font-weight: 700;
+  color: var(--cafe);
+}
+
+.productos {
+  margin: 0 0 1rem;
+  padding-left: 1.25rem;
+  color: var(--marron);
+}
+
+.tarjetaPie {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--arena);
+  color: var(--cafe);
+}
+
+.etiqueta {
+  color: var(--marron);
+}
+
+.total {
+  font-weight: 700;
+}
+
+.soloLector {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (min-width: 40rem) {
+  .resumen {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .rejilla {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 60rem) {
+  .contenido {
+    padding: 4rem 1.5rem 5.5rem;
+  }
+
+  .rejilla {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tarjeta {
+    transition: none;
+  }
+
+  .tarjeta:hover {
+    transform: none;
+  }
+}

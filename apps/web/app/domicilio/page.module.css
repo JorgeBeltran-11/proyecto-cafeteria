@@ -1,0 +1,448 @@
+/*
+ * /domicilio. Tokens en _inicio/marco.module.css. Contrastes AAA:
+ *   blanco sobre verde #14532d ≈ 9,0:1 · verde oscuro #0f3d20 sobre #dcf3e2 ≈ 10,6:1
+ *   café #2b1a12 sobre blanco ≈ 17,3:1 · marrón #5a3a28 sobre #fffaf1 ≈ 9,4:1
+ *   crema #fffaf1 sobre rojo #7a1f1f ≈ 9,6:1
+ */
+
+.contenido {
+  max-width: 75rem;
+  margin: 0 auto;
+  padding: 3.5rem 1rem 4.5rem;
+  display: grid;
+  gap: 3rem;
+}
+
+.titulo {
+  margin: 0 0 1.5rem;
+  font-family: var(--serif);
+  font-size: clamp(1.7rem, 4.5vw, 2.3rem);
+  line-height: 1.15;
+  color: var(--cafe);
+}
+
+.titulo::after {
+  content: "";
+  display: block;
+  width: 4rem;
+  height: 4px;
+  margin-top: 0.75rem;
+  background: var(--rojo);
+  border-radius: 2px;
+}
+
+/* ---------- Detalles del servicio ---------- */
+
+.detalles {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+}
+
+.detalle {
+  padding: 1.25rem 1.5rem;
+  background: var(--crema-clara);
+  border: 2px solid var(--arena);
+  border-left: 6px solid var(--rojo);
+  border-radius: 16px;
+}
+
+.detalleTitulo {
+  margin: 0 0 0.25rem;
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--cafe);
+}
+
+.detalleTexto {
+  margin: 0;
+  color: var(--marron);
+}
+
+/* ---------- Costos ---------- */
+
+.costos {
+  margin-top: 3rem;
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  background: var(--crema-clara);
+  border: 2px solid var(--arena);
+  border-radius: 18px;
+}
+
+.tabla thead th {
+  padding: 0.85rem 1.25rem;
+  text-align: left;
+  font-size: 0.95rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--crema);
+  background: var(--cafe);
+}
+
+.tabla tbody th,
+.tabla tbody td {
+  padding: 1rem 1.25rem;
+  text-align: left;
+  vertical-align: middle;
+  border-top: 1px solid var(--arena);
+}
+
+.tabla tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.tabla tbody tr:hover {
+  background: var(--crema);
+}
+
+.zona {
+  display: block;
+  font-weight: 700;
+  color: var(--cafe);
+}
+
+.zonaDetalle {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: var(--marron);
+}
+
+.tabla .columnaCosto {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.costo {
+  display: inline-block;
+  padding: 0.2rem 0.85rem;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--crema-clara);
+  background: var(--rojo);
+  border-radius: 999px;
+}
+
+.minimo {
+  margin: 1.25rem 0 0;
+  padding: 1rem 1.25rem;
+  color: var(--cafe);
+  background: var(--caramelo);
+  border-radius: 14px;
+}
+
+/* ---------- Chat simulado ---------- */
+
+.columnaChat {
+  align-self: start;
+}
+
+.chat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: center;
+}
+
+
+.botonChat {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.5rem;
+  color: var(--cafe);
+  background: transparent;
+  border: 0;
+  border-radius: 20px;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.botonChat:hover {
+  background: transparent;
+}
+
+.circuloChat {
+  display: grid;
+  place-items: center;
+  width: 6rem;
+  height: 6rem;
+  color: #ffffff;
+  background: #ffffff;
+  border: 4px solid #14532d;
+  border-radius: 50%;
+  box-shadow: 0 12px 26px rgba(20, 83, 45, 0.4);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.botonChat:hover .circuloChat {
+  transform: scale(1.06);
+  box-shadow: 0 16px 32px rgba(20, 83, 45, 0.5);
+}
+
+.botonChat[aria-expanded="true"] .circuloChat {
+  border-color: #0d3b1f;
+  background: #dcf3e2;
+}
+
+.textoBotonChat {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+.panel {
+  width: 100%;
+  max-width: 26rem;
+  margin-top: 0.5rem;
+  overflow: hidden;
+  text-align: left;
+  background: #fffdf8;
+  border: 2px solid #14532d;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(43, 26, 18, 0.25);
+  animation: abrir 0.25s ease-out both;
+}
+
+.panelCabecera {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.75rem 0.75rem 1rem;
+  color: #ffffff;
+  background: #14532d;
+}
+
+.panelAvatar {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  font-size: 1.4rem;
+  background: var(--crema);
+  border-radius: 50%;
+}
+
+.panelTitulo {
+  margin: 0;
+  font-size: 1.1rem;
+  line-height: 1.3;
+  color: #ffffff;
+}
+
+.panelSubtitulo {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #ffffff;
+}
+
+
+.cerrar {
+  margin-left: auto;
+  min-height: 44px;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.95rem;
+  color: #14532d;
+  background: #ffffff;
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+}
+
+.cerrar:hover {
+  background: #dcf3e2;
+}
+
+.mensajes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  height: 20rem;
+  margin: 0;
+  padding: 1rem;
+  overflow-y: auto;
+  list-style: none;
+  background:
+    url("/inicio/granos.svg") 0 0 / 120px 120px repeat,
+    var(--crema);
+}
+
+.mensajeCafeteria,
+.mensajeCliente,
+.escribiendo {
+  max-width: 85%;
+  padding: 0.6rem 0.9rem;
+  font-size: 1rem;
+  line-height: 1.45;
+  border-radius: 14px;
+  animation: entrar 0.25s ease-out both;
+}
+
+.mensajeCafeteria,
+.escribiendo {
+  align-self: flex-start;
+  color: var(--cafe);
+  background: #ffffff;
+  border: 1px solid var(--arena);
+  border-bottom-left-radius: 4px;
+}
+
+.mensajeCliente {
+  align-self: flex-end;
+  color: #0f3d20;
+  background: #dcf3e2;
+  border: 1px solid #a9d9b7;
+  border-bottom-right-radius: 4px;
+}
+
+.escribiendo {
+  font-style: italic;
+  color: var(--marron);
+}
+
+.rapidas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem 0;
+}
+
+
+.rapida {
+  min-height: 44px;
+  padding: 0.35rem 0.95rem;
+  font-size: 0.95rem;
+  color: #14532d;
+  background: #ffffff;
+  border: 2px solid #14532d;
+  border-radius: 999px;
+}
+
+.rapida:hover {
+  background: #dcf3e2;
+}
+
+.formulario {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem 0.5rem;
+}
+
+.campo {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0.5rem 0.85rem;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--cafe);
+  background: #ffffff;
+  border: 2px solid var(--marron);
+  border-radius: 999px;
+}
+
+.campo::placeholder {
+  color: var(--marron);
+  opacity: 1;
+}
+
+
+.enviar {
+  min-height: 44px;
+  padding: 0.35rem 1.1rem;
+  font-size: 1rem;
+  color: #ffffff;
+  background: #14532d;
+  border: 2px solid #14532d;
+  border-radius: 999px;
+}
+
+.enviar:hover {
+  background: #0d3b1f;
+}
+
+.ayuda {
+  margin: 0;
+  padding: 0 1rem 0.85rem;
+  font-size: 0.9rem;
+  color: var(--marron);
+}
+
+.soloLector {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@keyframes abrir {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes entrar {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* A la derecha en pantallas anchas; debajo en móvil. */
+@media (min-width: 60rem) {
+  .contenido {
+    grid-template-columns: minmax(0, 1fr) 26rem;
+    gap: 3.5rem;
+    padding: 4.5rem 1.5rem 5.5rem;
+  }
+
+  .columnaChat {
+    position: sticky;
+    top: calc(var(--altura-cabecera) + 1.5rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .mensajeCafeteria,
+  .mensajeCliente,
+  .escribiendo {
+    animation: none;
+  }
+
+  .circuloChat,
+  .tabla tbody tr {
+    transition: none;
+  }
+
+  .botonChat:hover .circuloChat {
+    transform: none;
+  }
+}

@@ -1,5 +1,6 @@
 /*
  * Página de inicio. Estilos locales (CSS Modules): no afectan a /menu, /carrito ni /personal.
+ * Cabecera, pie y tokens de color: _inicio/marco.module.css (compartidos con las páginas informativas).
  * Contrastes WCAG AAA (≥ 7:1) comprobados:
  *   crema #f7eedd sobre café #1c110b ≈ 16,1:1 · sobre #4a2c1d ≈ 10,9:1
  *   caramelo #f2c27e sobre #4a2c1d ≈ 7,7:1 · café #2b1a12 sobre caramelo ≈ 10,2:1
@@ -8,137 +9,8 @@
  */
 
 .pagina {
-  --cafe-noche: #1c110b;
-  --cafe: #2b1a12;
-  --cafe-medio: #4a2c1d;
-  --marron: #5a3a28;
-  --crema: #f7eedd;
-  --crema-clara: #fffaf1;
-  --arena: #e8d9bf;
-  --caramelo: #f2c27e;
-  --rojo: #7a1f1f;
-  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
-  --altura-cabecera: 7.25rem;
-
+  /* Los tokens de color, la cabecera, el foco y el pie viven en _inicio/marco.module.css. */
   min-height: 100vh;
-  background: var(--crema);
-  color: var(--cafe);
-}
-
-/* Lo que se enfoca con el teclado nunca queda tapado por la cabecera fija (WCAG 2.4.12). */
-.pagina a,
-.pagina button,
-.pagina section {
-  scroll-margin-top: calc(var(--altura-cabecera) + 1rem);
-  scroll-margin-bottom: 1rem;
-}
-
-.pagina a:focus-visible,
-.pagina button:focus-visible,
-.principal:focus-visible {
-  outline: 3px solid var(--caramelo);
-  outline-offset: 3px;
-  box-shadow: 0 0 0 6px var(--cafe-noche);
-}
-
-.saltar {
-  position: absolute;
-  left: 1rem;
-  top: -10rem;
-  z-index: 100;
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 0.5rem 1rem;
-  background: var(--caramelo);
-  color: var(--cafe);
-  font-weight: 700;
-  border-radius: 8px;
-}
-
-.saltar:focus {
-  top: 1rem;
-}
-
-/* ---------- Cabecera fija ---------- */
-
-.cabecera {
-  position: fixed;
-  inset: 0 0 auto;
-  z-index: 50;
-  background: var(--cafe-noche);
-  border-bottom: 1px solid rgba(242, 194, 126, 0.25);
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
-}
-
-.cabeceraInterior {
-  max-width: 75rem;
-  margin: 0 auto;
-  padding: 0.5rem 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.25rem;
-}
-
-.marca {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  min-height: 44px;
-  color: var(--crema);
-  font-family: var(--serif);
-  font-size: 1.375rem;
-  font-weight: 700;
-  text-decoration: none;
-  letter-spacing: 0.01em;
-}
-
-.navLista {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.navEnlace {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  min-width: 44px;
-  padding: 0.4rem 0.75rem;
-  color: var(--crema);
-  font-size: 1rem;
-  font-weight: 600;
-  text-decoration: none;
-  border-radius: 999px;
-  border: 2px solid transparent;
-  transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease;
-}
-
-.navEnlace:hover {
-  background: var(--cafe-medio);
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 4px;
-}
-
-.navEnlace[aria-current="page"] {
-  border-color: var(--caramelo);
-  color: var(--caramelo);
-}
-
-/* ---------- Contenido principal ---------- */
-
-/* Anula el ancho limitado que globals.css da a <main> en el resto de páginas. */
-.principal {
-  max-width: none;
-  margin: 0;
-  padding: 0;
 }
 
 /* ---------- Hero ---------- */
@@ -601,87 +473,6 @@
   border: 0;
 }
 
-/* ---------- Pie ---------- */
-
-.pie {
-  background: var(--cafe-noche);
-  color: var(--crema);
-  border-top: 4px solid var(--rojo);
-}
-
-.pieInterior {
-  max-width: 75rem;
-  margin: 0 auto;
-  padding: 2rem 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.pieTitulo {
-  margin: 0 0 0.5rem;
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--caramelo);
-}
-
-/* HealthStatus en formato compacto: se adapta desde fuera, sin tocar el componente. */
-.salud {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem 1rem;
-  font-size: 1rem;
-}
-
-.salud .pieTitulo {
-  flex-basis: 100%;
-}
-
-.salud > div {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem 1rem;
-  margin: 0;
-}
-
-.salud > div p {
-  margin: 0;
-}
-
-.salud :global(.estado-ok) {
-  color: #a6e3b3;
-}
-
-.salud :global(.estado-error) {
-  color: #ffb8ab;
-}
-
-.salud button {
-  min-height: 44px;
-  padding: 0.35rem 1rem;
-  font-size: 0.95rem;
-  color: var(--cafe);
-  background: var(--crema);
-  border: 2px solid var(--crema);
-  border-radius: 999px;
-}
-
-.salud button:hover {
-  background: var(--caramelo);
-  border-color: var(--caramelo);
-}
-
-.pieTexto {
-  flex-shrink: 0;
-  margin: 0;
-  font-family: var(--serif);
-  font-size: 1.05rem;
-  color: var(--arena);
-}
-
 /* ---------- Aparición al hacer scroll ---------- */
 
 .aparecer {
@@ -749,24 +540,8 @@
 /* ---------- Tamaños mayores (móvil primero) ---------- */
 
 @media (min-width: 40rem) {
-  .pagina {
-    --altura-cabecera: 4.25rem;
-  }
-
-  .cabeceraInterior {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
-
   .rejillaProductos {
     grid-template-columns: repeat(2, 1fr);
-  }
-
-  .pieInterior {
-    flex-direction: row;
-    align-items: flex-end;
-    justify-content: space-between;
   }
 }
 
@@ -789,14 +564,6 @@
 
   .seccion {
     padding: 5.5rem 1.5rem;
-  }
-
-  .cabeceraInterior {
-    padding-inline: 1.5rem;
-  }
-
-  .pieInterior {
-    padding-inline: 1.5rem;
   }
 }
 

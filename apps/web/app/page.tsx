@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Aparecer } from "./_inicio/aparecer";
 import { Destacados } from "./_inicio/destacados";
+import { Marco } from "./_inicio/marco";
 import { Vapor } from "./_inicio/vapor";
-import { HealthStatus } from "./health-status";
 import estilos from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -34,46 +34,7 @@ const ACCIONES = [
 
 export default function Home() {
   return (
-    <div className={estilos.pagina}>
-      <a href="#contenido" className={estilos.saltar}>
-        Saltar al contenido
-      </a>
-
-      <header className={estilos.cabecera}>
-        <div className={estilos.cabeceraInterior}>
-          <Link href="/" className={estilos.marca}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/inicio/logo-taza.svg" alt="" width={36} height={36} />
-            <span>Cafetería UTPL</span>
-          </Link>
-          <nav aria-label="Principal">
-            <ul className={estilos.navLista}>
-              <li>
-                <Link href="/" aria-current="page" className={estilos.navEnlace}>
-                  Inicio
-                </Link>
-              </li>
-              <li>
-                <Link href="/menu" className={estilos.navEnlace}>
-                  Menú
-                </Link>
-              </li>
-              <li>
-                <Link href="/carrito" className={estilos.navEnlace}>
-                  Carrito
-                </Link>
-              </li>
-              <li>
-                <Link href="/personal/disponibilidad" className={estilos.navEnlace}>
-                  Personal
-                </Link>
-              </li>
-            </ul>
-          </nav>
-        </div>
-      </header>
-
-      <main id="contenido" tabIndex={-1} className={estilos.principal}>
+    <Marco actual="/" className={estilos.pagina}>
         <section className={estilos.hero} aria-labelledby="titulo-hero">
           <div className={estilos.heroInterior}>
             <div className={estilos.heroTexto}>
@@ -86,11 +47,11 @@ export default function Home() {
                 de toques. Nosotros ponemos el café.
               </p>
               <div className={estilos.heroBotones}>
-                <Link href="/menu" className={estilos.botonPrincipal}>
-                  Ver el menú
+                <Link href="/conocenos" className={estilos.botonPrincipal}>
+                  Conoce nuestra historia
                 </Link>
-                <Link href="/carrito" className={estilos.botonSecundario}>
-                  Ir a mi carrito
+                <Link href="/domicilio" className={estilos.botonSecundario}>
+                  Servicio a domicilio
                 </Link>
               </div>
             </div>
@@ -151,17 +112,6 @@ export default function Home() {
             </Aparecer>
           </div>
         </section>
-      </main>
-
-      <footer className={estilos.pie}>
-        <div className={estilos.pieInterior}>
-          <div className={estilos.salud}>
-            <h2 className={estilos.pieTitulo}>Estado del sistema</h2>
-            <HealthStatus />
-          </div>
-          <p className={estilos.pieTexto}>Taller #4 · Arquitectura de Software</p>
-        </div>
-      </footer>
-    </div>
+    </Marco>
   );
 }

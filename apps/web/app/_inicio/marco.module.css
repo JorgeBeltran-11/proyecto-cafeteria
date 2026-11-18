@@ -37,6 +37,7 @@
 .pagina a:focus-visible,
 .pagina button:focus-visible,
 .pagina input:focus-visible,
+.pagina select:focus-visible,
 .principal:focus-visible {
   outline: 3px solid var(--caramelo);
   outline-offset: 3px;
@@ -455,4 +456,50 @@
   .portadaInterior {
     animation: none;
   }
+}
+
+/* ---------- Carrito compartido ---------- */
+
+/* Selector "− número +" (usado en /cafes y /pedidos). */
+.cantidad {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.cantidadBoton {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--cafe);
+  background: var(--crema-clara);
+  border: 2px solid var(--cafe);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.cantidadBoton:hover {
+  background: var(--arena);
+}
+
+.cantidadBoton[aria-disabled="true"] {
+  color: var(--marron);
+  border-style: dashed;
+  border-color: var(--marron);
+  background: transparent;
+  cursor: not-allowed;
+}
+
+.cantidadValor {
+  min-width: 2ch;
+  font-size: 1.15rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--cafe);
+  font-variant-numeric: tabular-nums;
 }

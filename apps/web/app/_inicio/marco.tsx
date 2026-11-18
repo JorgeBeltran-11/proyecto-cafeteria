@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { CarritoProvider } from "./carrito-estado";
 import { CONTACTO, EXPLORA, NAVEGACION, type RutaNavegacion } from "./datos";
 import { Suscripcion, VolverArriba } from "./pie-interactivo";
 import m from "./marco.module.css";
@@ -196,7 +197,7 @@ export function Portada({
   );
 }
 
-/** Página completa: cabecera, contenido principal enfocable y pie. */
+/** Página completa (con el carrito compartido): cabecera, contenido principal enfocable y pie. */
 export function Marco({
   actual,
   className,
@@ -207,12 +208,14 @@ export function Marco({
   children: ReactNode;
 }) {
   return (
-    <div className={className ? `${m.pagina} ${className}` : m.pagina}>
-      <Cabecera actual={actual} />
-      <main id="contenido" tabIndex={-1} className={m.principal}>
-        {children}
-      </main>
-      <Pie />
-    </div>
+    <CarritoProvider>
+      <div className={className ? `${m.pagina} ${className}` : m.pagina}>
+        <Cabecera actual={actual} />
+        <main id="contenido" tabIndex={-1} className={m.principal}>
+          {children}
+        </main>
+        <Pie />
+      </div>
+    </CarritoProvider>
   );
 }

@@ -122,6 +122,42 @@
   color: var(--cafe);
 }
 
+/* Selector de cantidad + "Agregar" bajo el precio. */
+.compra {
+  margin-top: 1rem;
+}
+
+.compraFila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+.agregar {
+  min-height: 44px;
+  padding: 0.5rem 1.15rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--crema-clara);
+  background: var(--cafe);
+  border: 2px solid var(--cafe);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.agregar:hover {
+  background: var(--cafe-medio);
+}
+
+/* Aviso "Agregado: 2 × Capuchino": rojo #7a1f1f sobre #fffaf1 ≈ 9,6:1. */
+.aviso {
+  min-height: 1.5em;
+  margin: 0.5rem 0 0;
+  font-weight: 700;
+  color: var(--rojo);
+}
+
 .nota {
   margin: 2.5rem 0 0;
   color: var(--cafe);

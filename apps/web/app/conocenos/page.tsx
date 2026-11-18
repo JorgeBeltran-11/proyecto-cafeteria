@@ -6,7 +6,7 @@ import { AniosDesde } from "./anios";
 import e from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "Conócenos · Cafetería UTPL",
+  title: "Cafetería Online Loja",
   description: "La historia de la Cafetería UTPL desde 2019, su misión, su visión y sus valores.",
 };
 

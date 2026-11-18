@@ -7,7 +7,7 @@ import { Vapor } from "./_inicio/vapor";
 import estilos from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "Inicio · Cafetería UTPL",
+  title: "Cafetería Online Loja",
   description: "Consulta la carta del día, arma tu carrito y gestiona la disponibilidad.",
 };
 

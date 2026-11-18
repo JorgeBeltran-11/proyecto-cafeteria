@@ -1,22 +1,167 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+import { Aparecer } from "./_inicio/aparecer";
+import { Destacados } from "./_inicio/destacados";
+import { Vapor } from "./_inicio/vapor";
 import { HealthStatus } from "./health-status";
+import estilos from "./page.module.css";
+
+export const metadata: Metadata = {
+  title: "Inicio · Cafetería UTPL",
+  description: "Consulta la carta del día, arma tu carrito y gestiona la disponibilidad.",
+};
+
+const ACCIONES = [
+  {
+    href: "/menu",
+    icono: "/inicio/icono-menu.svg",
+    titulo: "Menú",
+    texto: "La carta publicada de hoy, con precios, alérgenos y lo que está disponible ahora.",
+  },
+  {
+    href: "/carrito",
+    icono: "/inicio/icono-carrito.svg",
+    titulo: "Carrito",
+    texto: "Revisa lo que elegiste, ajusta las cantidades y mira el total al instante.",
+  },
+  {
+    href: "/personal/disponibilidad",
+    icono: "/inicio/icono-personal.svg",
+    titulo: "Personal",
+    texto: "Marca productos agotados y actualiza las existencias del día.",
+  },
+] as const;
 
 export default function Home() {
   return (
-    <main>
-      <h1>Proyecto cafetería</h1>
-      <HealthStatus />
-      <ul className="enlaces-inicio">
-        <li>
-          <Link href="/menu">Ver el menú</Link>
-        </li>
-        <li>
-          <Link href="/carrito">Ir a tu carrito</Link>
-        </li>
-        <li>
-          <Link href="/personal/disponibilidad">Personal: disponibilidad del día</Link>
-        </li>
-      </ul>
-    </main>
+    <div className={estilos.pagina}>
+      <a href="#contenido" className={estilos.saltar}>
+        Saltar al contenido
+      </a>
+
+      <header className={estilos.cabecera}>
+        <div className={estilos.cabeceraInterior}>
+          <Link href="/" className={estilos.marca}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/inicio/logo-taza.svg" alt="" width={36} height={36} />
+            <span>Cafetería UTPL</span>
+          </Link>
+          <nav aria-label="Principal">
+            <ul className={estilos.navLista}>
+              <li>
+                <Link href="/" aria-current="page" className={estilos.navEnlace}>
+                  Inicio
+                </Link>
+              </li>
+              <li>
+                <Link href="/menu" className={estilos.navEnlace}>
+                  Menú
+                </Link>
+              </li>
+              <li>
+                <Link href="/carrito" className={estilos.navEnlace}>
+                  Carrito
+                </Link>
+              </li>
+              <li>
+                <Link href="/personal/disponibilidad" className={estilos.navEnlace}>
+                  Personal
+                </Link>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </header>
+
+      <main id="contenido" tabIndex={-1} className={estilos.principal}>
+        <section className={estilos.hero} aria-labelledby="titulo-hero">
+          <div className={estilos.heroInterior}>
+            <div className={estilos.heroTexto}>
+              <p className={estilos.antetitulo}>Café de especialidad en el campus</p>
+              <h1 id="titulo-hero" className={estilos.heroTitulo}>
+                Te damos la bienvenida a <em>Cafetería UTPL</em>
+              </h1>
+              <p className={estilos.heroDescripcion}>
+                Mira la carta del día, elige lo que se te antoje y guárdalo en tu carrito en un par
+                de toques. Nosotros ponemos el café.
+              </p>
+              <div className={estilos.heroBotones}>
+                <Link href="/menu" className={estilos.botonPrincipal}>
+                  Ver el menú
+                </Link>
+                <Link href="/carrito" className={estilos.botonSecundario}>
+                  Ir a mi carrito
+                </Link>
+              </div>
+            </div>
+            <div className={estilos.heroIlustracion}>
+              <Vapor />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/inicio/taza.svg"
+                alt="Ilustración de una taza de café humeante con arte latte en forma de corazón"
+                width={320}
+                height={240}
+                className={estilos.taza}
+              />
+            </div>
+          </div>
+        </section>
+
+        <section className={estilos.seccion} aria-labelledby="titulo-acciones">
+          <Aparecer>
+            <h2 id="titulo-acciones" className={estilos.seccionTitulo}>
+              ¿Qué quieres hacer hoy?
+            </h2>
+          </Aparecer>
+          <ul className={estilos.rejillaAcciones}>
+            {ACCIONES.map((a, i) => (
+              <li key={a.href}>
+                <Aparecer retraso={i * 120}>
+                  <Link href={a.href} className={estilos.tarjeta}>
+                    <span className={estilos.tarjetaIcono}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={a.icono} alt="" width={64} height={64} />
+                    </span>
+                    <span className={estilos.tarjetaTitulo}>{a.titulo}</span>
+                    <span className={estilos.tarjetaTexto}>{a.texto}</span>
+                    <span className={estilos.tarjetaFlecha} aria-hidden="true">
+                      →
+                    </span>
+                  </Link>
+                </Aparecer>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section
+          className={`${estilos.seccion} ${estilos.seccionCrema}`}
+          aria-labelledby="titulo-destacados"
+        >
+          <div className={estilos.seccionInterior}>
+            <Aparecer>
+              <h2 id="titulo-destacados" className={estilos.seccionTitulo}>
+                Destacados de hoy
+              </h2>
+              <p className={estilos.seccionIntro}>Recién salidos de la carta publicada.</p>
+            </Aparecer>
+            <Aparecer retraso={120}>
+              <Destacados />
+            </Aparecer>
+          </div>
+        </section>
+      </main>
+
+      <footer className={estilos.pie}>
+        <div className={estilos.pieInterior}>
+          <div className={estilos.salud}>
+            <h2 className={estilos.pieTitulo}>Estado del sistema</h2>
+            <HealthStatus />
+          </div>
+          <p className={estilos.pieTexto}>Taller #4 · Arquitectura de Software</p>
+        </div>
+      </footer>
+    </div>
   );
 }

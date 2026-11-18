@@ -28,6 +28,7 @@ model Account {
   passwordResetTokens     PasswordResetToken[]
   mfaSecret               MfaSecret?
   recoveryCodes           MfaRecoveryCode[]
+  mfaChallenges           MfaChallenge[]
   securityEvents          SecurityEvent[]
 
   @@index([role, status])
@@ -119,6 +120,21 @@ model MfaRecoveryCode {
   account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
 
   @@index([accountId, usedAt])
+}
+
+model MfaChallenge {
+  id        String    @id @default(uuid())
+  accountId String
+  purpose   String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId, purpose, usedAt])
+  @@index([expiresAt])
 }
 
 model SecurityEvent {

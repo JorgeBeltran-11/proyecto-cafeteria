@@ -29,12 +29,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-        '409':
-          description: El correo ya existe o la cuenta está pendiente de validación.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         '429':
           description: Demasiados intentos de registro desde la misma fuente.
           content:
@@ -71,12 +65,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Token o cuenta no encontrada.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Error interno del servidor.
           content:
@@ -96,13 +84,14 @@ paths:
               $ref: '#/components/schemas/LoginRequest'
       responses:
         '200':
-          description: Credenciales válidas o requiere MFA. La API devuelve un desafío temporal cuando el segundo factor está activo.
+          description: Devuelve tokens para clientes sin MFA, un desafío temporal para cuentas con MFA o un desafío de inscripción para staff/admin que aún no lo haya activado.
           content:
             application/json:
               schema:
                 oneOf:
                   - $ref: '#/components/schemas/LoginResponse'
                   - $ref: '#/components/schemas/LoginChallengeResponse'
+                  - $ref: '#/components/schemas/MfaEnrollmentChallengeResponse'
         '401':
           description: Credenciales inválidas.
           content:
@@ -125,7 +114,7 @@ paths:
   /auth/login/mfa:
     post:
       tags: [Auth]
-      summary: Completar el inicio de sesión con MFA TOTP
+      summary: Completar el inicio de sesión con un código TOTP o un código de recuperación
       requestBody:
         required: true
         content:
@@ -140,7 +129,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/LoginResponse'
         '400':
-          description: Código inválido o desafío caducado.
+          description: Código inválido, ya utilizado o desafío caducado.
           content:
             application/json:
               schema:
@@ -204,11 +193,12 @@ paths:
     post:
       tags: [Auth]
       summary: Cerrar sesión actual
+      description: Requiere un access token JWT válido. La operación es idempotente y revoca la sesión y todos sus refresh tokens activos.
       security:
         - bearerAuth: []
       responses:
         '200':
-          description: Sesión cerrada.
+          description: Sesión cerrada correctamente; la respuesta no incluye tokens.
           content:
             application/json:
               schema:
@@ -224,6 +214,7 @@ paths:
     post:
       tags: [Auth]
       summary: Solicitar recuperación de contraseña
+      description: Normaliza el correo; solo cuentas activas con correo verificado generan un token. Responde con el mismo mensaje para cuentas inexistentes o no elegibles. Los tokens aleatorios expiran en 30 minutos, se almacenan solo mediante SHA-256 y el endpoint está limitado a cinco solicitudes por minuto.
       requestBody:
         required: true
         content:
@@ -243,8 +234,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Error interno del servidor.
+        '400':
+          description: Correo inválido.
           content:
             application/json:
               schema:
@@ -254,6 +245,7 @@ paths:
     post:
       tags: [Auth]
       summary: Restablecer contraseña con token temporal
+      description: Consume el token de forma condicional y, en una transacción, actualiza la contraseña, invalida otros tokens de recuperación y revoca todas las sesiones y refresh tokens de la cuenta. El endpoint está limitado a cinco solicitudes por minuto.
       requestBody:
         required: true
         content:
@@ -268,13 +260,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/GenericMessageResponse'
         '400':
-          description: Token inválido, usado o caducado.
+          description: Token inválido, usado o caducado, o datos de entrada inválidos.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Token no encontrado.
+        '429':
+          description: Demasiadas solicitudes en poco tiempo.
           content:
             application/json:
               schema:
@@ -289,7 +281,8 @@ paths:
   /auth/mfa/setup:
     post:
       tags: [Auth]
-      summary: Configurar MFA TOTP; el secreto nunca se devuelve en texto plano
+      summary: Preparar MFA TOTP
+      description: Requiere JWT. La URI otpauth se devuelve únicamente para registrar el autenticador; el secreto no se expone aparte, se guarda cifrado y no se registra. MFA queda pendiente hasta verificar un TOTP.
       security:
         - bearerAuth: []
       responses:
@@ -307,6 +300,12 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Usuario no autenticado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Demasiadas solicitudes de configuración MFA.
           content:
             application/json:
               schema:
@@ -349,6 +348,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Demasiados intentos de verificación.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Error interno del servidor.
           content:
@@ -356,10 +361,73 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /auth/mfa/recovery:
+  /auth/mfa/enrollment/setup:
     post:
       tags: [Auth]
-      summary: Usar un código de recuperación MFA una sola vez
+      summary: Preparar MFA obligatorio para staff/admin
+      description: Usa un enrollmentToken de cinco minutos devuelto por login cuando una cuenta staff/admin aún no tiene MFA. No requiere ni concede una sesión autenticada.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MfaEnrollmentTokenRequest'
+      responses:
+        '200':
+          description: URI otpauth para registrar el autenticador; el secreto queda cifrado en el servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MfaSetupResponse'
+        '400':
+          description: Desafío de inscripción inválido, utilizado o vencido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Demasiadas solicitudes de configuración MFA.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/mfa/enrollment/verify:
+    post:
+      tags: [Auth]
+      summary: Activar MFA obligatorio para staff/admin
+      description: Verifica un TOTP y consume el desafío de inscripción. La respuesta incluye códigos de recuperación que solo se muestran una vez.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MfaEnrollmentVerifyRequest'
+      responses:
+        '200':
+          description: MFA activado y códigos de recuperación entregados una sola vez.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MfaVerifyResponse'
+        '400':
+          description: Código TOTP inválido o desafío de inscripción inválido, usado o vencido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Demasiados intentos de verificación.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/mfa/disable:
+    post:
+      tags: [Auth]
+      summary: Desactivar MFA
+      description: Requiere JWT, contraseña y un TOTP o código de recuperación válido. La operación revoca las sesiones y refresh tokens activos de la cuenta.
       security:
         - bearerAuth: []
       requestBody:
@@ -367,28 +435,67 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MfaRecoveryRequest'
+              $ref: '#/components/schemas/MfaDisableRequest'
       responses:
         '200':
-          description: Código de recuperación aceptado y marcado como usado.
+          description: MFA desactivado; no se devuelven credenciales.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/GenericMessageResponse'
         '400':
-          description: Código ya usado, no válido o vencido.
+          description: MFA ya no está activo o el segundo factor no es válido.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '401':
-          description: No autenticado.
+          description: JWT, contraseña o estado de la cuenta no válido.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Error interno del servidor.
+        '429':
+          description: Demasiadas solicitudes de MFA.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/mfa/recovery-codes:
+    post:
+      tags: [Auth]
+      summary: Regenerar códigos de recuperación MFA
+      description: Requiere JWT y un segundo factor válido. Invalida los códigos anteriores; los nuevos solo se muestran una vez y se guardan como hashes.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MfaRecoveryCodesRequest'
+      responses:
+        '200':
+          description: Nuevos códigos de recuperación de un solo uso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MfaRecoveryCodesResponse'
+        '400':
+          description: El segundo factor no es válido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: JWT inválido o MFA no activo.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Demasiadas solicitudes de MFA.
           content:
             application/json:
               schema:
@@ -1070,12 +1177,17 @@ components:
 
     LoginMfaRequest:
       type: object
-      required: [challengeId, code]
+      required: [challengeToken, code]
       properties:
-        challengeId:
+        challengeToken:
           type: string
+          minLength: 64
+          maxLength: 64
+          pattern: '^[a-fA-F0-9]{64}$'
         code:
           type: string
+          description: Código TOTP de seis dígitos o código de recuperación en cuatro grupos de ocho caracteres hexadecimales.
+          pattern: '^(?:[0-9]{6}|(?:[A-Fa-f0-9]{8}-){3}[A-Fa-f0-9]{8})$'
 
     RefreshTokenRequest:
       type: object
@@ -1086,21 +1198,42 @@ components:
 
     RefreshTokenResponse:
       type: object
+      required: [accessToken, refreshToken, expiresIn]
       properties:
         accessToken:
+          type: string
+        refreshToken:
           type: string
         expiresIn:
           type: integer
 
     LoginChallengeResponse:
       type: object
+      required: [mfaRequired, challengeToken, expiresIn]
       properties:
-        challengeId:
-          type: string
         mfaRequired:
           type: boolean
-        message:
+          enum: [true]
+        challengeToken:
           type: string
+        expiresIn:
+          type: integer
+          description: Duración del desafío en segundos.
+
+    MfaEnrollmentChallengeResponse:
+      type: object
+      required: [mfaSetupRequired, enrollmentToken, expiresIn]
+      properties:
+        mfaSetupRequired:
+          type: boolean
+          enum: [true]
+        enrollmentToken:
+          type: string
+          minLength: 64
+          maxLength: 64
+        expiresIn:
+          type: integer
+          description: Duración del desafío de inscripción en segundos.
 
     ForgotPasswordRequest:
       type: object
@@ -1109,6 +1242,7 @@ components:
         email:
           type: string
           format: email
+          maxLength: 254
 
     ResetPasswordRequest:
       type: object
@@ -1116,8 +1250,12 @@ components:
       properties:
         token:
           type: string
+          minLength: 1
+          maxLength: 128
         password:
           type: string
+          minLength: 12
+          maxLength: 128
           minLength: 12
 
     MfaSetupResponse:
@@ -1141,7 +1279,8 @@ components:
           enum: [active]
         recoveryCodes:
           type: array
-          minItems: 8
+          minItems: 10
+          maxItems: 10
           description: Códigos de recuperación de un solo uso. Se entregan una sola vez tras activar MFA.
           items:
             type: string
@@ -1156,14 +1295,64 @@ components:
           maxLength: 6
           pattern: '^[0-9]{6}$'
 
-    MfaRecoveryRequest:
+    MfaEnrollmentTokenRequest:
+      type: object
+      required: [enrollmentToken]
+      properties:
+        enrollmentToken:
+          type: string
+          minLength: 64
+          maxLength: 64
+          pattern: '^[a-fA-F0-9]{64}$'
+
+    MfaEnrollmentVerifyRequest:
+      type: object
+      required: [enrollmentToken, code]
+      properties:
+        enrollmentToken:
+          type: string
+          minLength: 64
+          maxLength: 64
+          pattern: '^[a-fA-F0-9]{64}$'
+        code:
+          type: string
+          pattern: '^[0-9]{6}$'
+
+    MfaDisableRequest:
+      type: object
+      required: [password, code]
+      properties:
+        password:
+          type: string
+          maxLength: 128
+        code:
+          type: string
+          description: Código TOTP de seis dígitos o código de recuperación.
+          pattern: '^(?:[0-9]{6}|(?:[A-Fa-f0-9]{8}-){3}[A-Fa-f0-9]{8})$'
+
+    MfaRecoveryCodesRequest:
       type: object
       required: [code]
       properties:
         code:
           type: string
-          minLength: 8
-          maxLength: 8
+          description: Código TOTP de seis dígitos o código de recuperación.
+          pattern: '^(?:[0-9]{6}|(?:[A-Fa-f0-9]{8}-){3}[A-Fa-f0-9]{8})$'
+
+    MfaRecoveryCodesResponse:
+      type: object
+      required: [status, recoveryCodes]
+      properties:
+        status:
+          type: string
+          enum: [active]
+        recoveryCodes:
+          type: array
+          minItems: 10
+          maxItems: 10
+          description: Los códigos nuevos se entregan una sola vez; sus hashes son los únicos datos almacenados.
+          items:
+            type: string
 
     EmailChangeRequest:
       type: object

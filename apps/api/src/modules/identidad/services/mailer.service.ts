@@ -93,4 +93,43 @@ export class MailerService {
       ].join('\n\n'),
     });
   }
+
+  async sendPasswordReset(email: string, token: string): Promise<void> {
+    const webOrigin = (
+      this.config.get<string>('WEB_ORIGIN') ?? 'http://localhost:3000'
+    ).replace(/\/$/, '');
+    const resetUrl =
+      `${webOrigin}/reset-password?token=${encodeURIComponent(token)}`;
+
+    if (this.isConsoleMode()) {
+      this.logger.log(
+        'MODO DE DESARROLLO: no se envió un correo de restablecimiento.',
+      );
+      return;
+    }
+
+    const settings = this.getSettings();
+    const transporter = nodemailer.createTransport({
+      host: settings.host,
+      port: settings.port,
+      secure: settings.secure,
+      auth: {
+        user: settings.user,
+        pass: settings.password,
+      },
+    });
+
+    await transporter.sendMail({
+      from: settings.from,
+      to: email,
+      subject: 'Restablece tu contraseña',
+      text: [
+        'Recibimos una solicitud para restablecer tu contraseña.',
+        'Para continuar, abre el siguiente enlace:',
+        resetUrl,
+        'Este enlace caduca en 30 minutos y solo se puede utilizar una vez.',
+        'Si no solicitaste este cambio, puedes ignorar este mensaje.',
+      ].join('\n\n'),
+    });
+  }
 }

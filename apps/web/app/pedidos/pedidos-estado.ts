@@ -3,6 +3,7 @@
 import { crearAlmacen } from "../_inicio/almacen";
 import {
   ESTADOS_PEDIDO,
+  NUMERACION_ANTIGUA_DESDE,
   PRIMER_NUMERO_PEDIDO,
   type EstadoPedido,
   type LineaPedido,
@@ -37,12 +38,32 @@ function validarPedidos(dato: unknown): Pedido[] {
   });
 }
 
-const almacen = crearAlmacen("cafeteria-online-loja:pedidos", SIN_PEDIDOS, validarPedidos);
+/**
+ * Migración de la numeración antigua (desde 1001): si algún pedido guardado la usa, renumera
+ * todos de forma consecutiva desde 1 en orden de registro (el más antiguo es el #1).
+ * El orden de la lista (del más reciente al más antiguo) no cambia.
+ */
+export function renumerarPedidos(pedidos: Pedido[]): Pedido[] | undefined {
+  if (!pedidos.some((p) => p.numero >= NUMERACION_ANTIGUA_DESDE)) return undefined;
+  // Orden de registro: por número ascendente; a igual número, el que está más abajo es más antiguo.
+  const porRegistro = pedidos
+    .map((p, i) => ({ p, i }))
+    .sort((a, b) => a.p.numero - b.p.numero || b.i - a.i);
+  const nuevos = new Map(porRegistro.map(({ p }, n) => [p, PRIMER_NUMERO_PEDIDO + n]));
+  return pedidos.map((p) => ({ ...p, numero: nuevos.get(p) ?? p.numero }));
+}
+
+const almacen = crearAlmacen(
+  "cafeteria-online-loja:pedidos",
+  SIN_PEDIDOS,
+  validarPedidos,
+  renumerarPedidos,
+);
 
 /** Pedidos registrados en este navegador, del más reciente al más antiguo. */
 export const usePedidos = almacen.useValor;
 
-/** Siguiente número consecutivo: 1001 si no hay pedidos. */
+/** Siguiente número consecutivo: el más alto + 1, o 1 si no hay pedidos. */
 export function siguienteNumero(pedidos: Pedido[]): number {
   return pedidos.reduce((max, p) => Math.max(max, p.numero + 1), PRIMER_NUMERO_PEDIDO);
 }

@@ -27,7 +27,7 @@ export const CONTACTO = {
   horario: ["Lunes a viernes: 07:00–19:00", "Sábados: 08:00–13:00"],
   telefono: { texto: "(07) 257 3864", enlace: "tel:+59372573864" },
   whatsapp: { texto: "099 482 6157", enlace: "https://wa.me/593994826157" },
-  correo: "hola@cafeteriacampus.ec",
+  correo: "cafeteriacampus@utpl.edu.ec",
 } as const;
 
 export const EXPLORA = [
@@ -88,6 +88,46 @@ export const CAFES: Cafe[] = [
     precioCentavos: 300,
     imagen: "/inicio/cafes/mocaccino.svg",
     alt: "Ilustración de un mocaccino con crema batida y salsa de chocolate",
+  },
+  {
+    id: "macchiato",
+    nombre: "Macchiato",
+    descripcion: "Espresso “manchado” con una cucharada de espuma de leche: intenso y apenas suave.",
+    precioCentavos: 175,
+    imagen: "/inicio/cafes/macchiato.svg",
+    alt: "Ilustración de un macchiato en taza pequeña con una mancha de espuma encima",
+  },
+  {
+    id: "cortado",
+    nombre: "Cortado",
+    descripcion: "Mitad espresso, mitad leche caliente, servido en vaso bajo para equilibrar sabor y cuerpo.",
+    precioCentavos: 190,
+    imagen: "/inicio/cafes/cortado.svg",
+    alt: "Ilustración de un cortado en vaso bajo de vidrio con capas de café y leche",
+  },
+  {
+    id: "flat-white",
+    nombre: "Flat White",
+    descripcion: "Espresso doble con leche microespumada, sedosa y sin espuma alta. Más café que un latte.",
+    precioCentavos: 275,
+    imagen: "/inicio/cafes/flat-white.svg",
+    alt: "Ilustración de un flat white en taza ancha con un corazón de arte latte",
+  },
+  {
+    id: "cafe-helado",
+    nombre: "Café helado",
+    descripcion: "Café de Loja preparado en frío, servido con hielo y un toque de leche. Refrescante.",
+    precioCentavos: 250,
+    imagen: "/inicio/cafes/cafe-helado.svg",
+    alt: "Ilustración de un café helado en vaso alto con cubos de hielo y pajilla",
+  },
+  {
+    id: "affogato",
+    nombre: "Affogato",
+    descripcion: "Una bola de helado de vainilla “ahogada” en un espresso recién servido.",
+    precioCentavos: 325,
+    imagen: "/inicio/cafes/affogato.svg",
+    alt: "Ilustración de un affogato: helado de vainilla con espresso derramado y una cuchara",
   },
 ];
 
@@ -173,7 +213,10 @@ export const ESTADOS_PEDIDO = ["Recibido", "En preparación", "Listo", "Entregad
 export type EstadoPedido = (typeof ESTADOS_PEDIDO)[number];
 
 /** Número del primer pedido registrado; los siguientes son consecutivos. */
-export const PRIMER_NUMERO_PEDIDO = 1001;
+export const PRIMER_NUMERO_PEDIDO = 1;
+
+/** Primer número de la numeración anterior: si hay pedidos guardados desde aquí, se renumeran. */
+export const NUMERACION_ANTIGUA_DESDE = 1001;
 
 export type LineaPedido = { nombre: string; cantidad: number; precioCentavos: number };
 

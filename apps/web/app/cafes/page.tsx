@@ -7,14 +7,15 @@ import e from "./page.module.css";
 
 export const metadata: Metadata = {
   title: "Cafetería Online Loja",
-  description: "Espresso, americano, capuchino, latte y mocaccino preparados con café de Loja.",
+  description:
+    "Diez cafés preparados con café de Loja: del espresso y el capuchino al café helado y el affogato.",
 };
 
 export default function PaginaCafes() {
   return (
     <Marco actual="/cafes">
       <Portada id="titulo-cafes" antetitulo="Café de Loja" titulo="Nuestros cafés">
-        Cinco clásicos preparados al momento con granos de fincas lojanas, tostados cada semana.
+        Diez cafés preparados al momento con granos de fincas lojanas, tostados cada semana.
       </Portada>
 
       <section className={e.seccion} aria-labelledby="titulo-carta">

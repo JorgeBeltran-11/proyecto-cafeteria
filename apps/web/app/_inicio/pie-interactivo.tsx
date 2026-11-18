@@ -73,8 +73,8 @@ export function VolverArriba({ destino }: { destino: string }) {
   }
 
   return (
-    <button type="button" className={m.volverArriba} onClick={alPulsar}>
-      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+    <button type="button" className={m.volverArriba} onClick={alPulsar} aria-label="Volver arriba">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
         <path
           d="M12 19V5M5 12l7-7 7 7"
           fill="none"
@@ -84,7 +84,6 @@ export function VolverArriba({ destino }: { destino: string }) {
           strokeLinejoin="round"
         />
       </svg>
-      Volver arriba
     </button>
   );
 }

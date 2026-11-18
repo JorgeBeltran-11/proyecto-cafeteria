@@ -35,7 +35,10 @@ export function Tablero() {
 
   const enPreparacion = pedidos.filter((p) => p.estado === "En preparación").length;
   const totalVendido = pedidos.reduce((suma, p) => suma + p.totalCentavos, 0);
-  const visibles = filtro === "Todos" ? pedidos : pedidos.filter((p) => p.estado === filtro);
+  // Orden ascendente por número (#1 primero), también al filtrar por estado.
+  const visibles = (filtro === "Todos" ? pedidos : pedidos.filter((p) => p.estado === filtro))
+    .slice()
+    .sort((a, b) => a.numero - b.numero);
   const opciones: Filtro[] = ["Todos", ...ESTADOS_PEDIDO];
 
   return (

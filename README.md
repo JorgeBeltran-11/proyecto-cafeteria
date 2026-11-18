@@ -105,6 +105,29 @@ Para cambiar los puertos:
 └── ROADMAP.md                      # plan por fases
 ```
 
+## Interfaz web
+
+Páginas públicas de la cafetería (`apps/web/app/`, con cabecera y pie comunes en `apps/web/app/_inicio/`):
+
+| Ruta | Contenido |
+|------|-----------|
+| `/` | Inicio: bienvenida, accesos rápidos y destacados de la carta |
+| `/cafes` | Nuestros cafés |
+| `/domicilio` | Servicio a domicilio: zonas, horario, costos de envío y chat de pedidos |
+| `/pedidos` | Pedidos de clientes y su estado |
+| `/equipo` | Nuestro equipo |
+| `/conocenos` | Historia, misión, visión y valores |
+
+Pantallas de los módulos del equipo, conectadas a la API:
+
+| Ruta | Módulo |
+|------|--------|
+| `/menu` | Carta dinámica publicada (spec 003) |
+| `/carrito` | Carrito de compras (spec 004) |
+| `/personal/disponibilidad` | Disponibilidad de productos para el personal (spec 003) |
+
+> **Datos de ejemplo.** Los cafés, pedidos, personal, historia y datos de contacto (dirección, horario, teléfono, WhatsApp y correo) que muestran las páginas públicas son contenido de ejemplo para el taller: no vienen de la API ni corresponden a personas o números reales. Están centralizados en `apps/web/app/_inicio/datos.ts` para cambiarlos fácilmente. El chat de `/domicilio` responde automáticamente en el navegador y la suscripción del pie solo muestra la confirmación; ninguno envía datos.
+
 ## Specs y módulos
 
 Cada spec vive en `specs/NNN-nombre/` y su código va en el módulo indicado. Los módulos de `apps/api/src/modules/` solo acceden a sus propias tablas; para datos de otro módulo usan su API pública.

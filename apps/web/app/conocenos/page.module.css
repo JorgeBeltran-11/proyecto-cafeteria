@@ -1,0 +1,311 @@
+/*
+ * /conocenos. Tokens en _inicio/marco.module.css. Contrastes AAA:
+ *   crema #fffaf1 sobre rojo #7a1f1f ≈ 9,9:1 · café #2b1a12 sobre caramelo #f2c27e ≈ 10,2:1
+ *   café sobre #fffaf1 ≈ 15,6:1 · marrón #5a3a28 sobre #fffaf1 ≈ 9,8:1 / sobre #f7eedd ≈ 8,8:1
+ */
+
+/* ---------- Cifra de años ---------- */
+
+.cifra {
+  padding: 2.5rem 1rem;
+  color: var(--cafe);
+  background: var(--caramelo);
+  border-bottom: 4px solid var(--rojo);
+}
+
+.cifraInterior {
+  max-width: 72rem;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 1.25rem;
+}
+
+.cifraTitulo {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cifraValor {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(2.5rem, 8vw, 4rem);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.cifraTexto {
+  flex-basis: 100%;
+  margin: 0;
+}
+
+/* ---------- Secciones ---------- */
+
+.seccion {
+  max-width: 75rem;
+  margin: 0 auto;
+  padding: 3.5rem 1rem 4.5rem;
+}
+
+.seccionCrema {
+  padding: 3.5rem 1rem 4.5rem;
+  background: var(--crema-clara);
+  border-top: 1px solid var(--arena);
+}
+
+.seccionInterior {
+  max-width: 72rem;
+  margin: 0 auto;
+}
+
+.titulo {
+  margin: 0 0 2rem;
+  font-family: var(--serif);
+  font-size: clamp(1.8rem, 4.5vw, 2.5rem);
+  line-height: 1.15;
+  color: var(--cafe);
+}
+
+.titulo::after {
+  content: "";
+  display: block;
+  width: 4rem;
+  height: 4px;
+  margin-top: 0.75rem;
+  background: var(--rojo);
+  border-radius: 2px;
+}
+
+/* ---------- Línea de tiempo ---------- */
+
+.linea {
+  position: relative;
+  margin: 0;
+  padding: 0 0 0 1.5rem;
+  list-style: none;
+}
+
+/* Eje vertical decorativo. */
+.linea::before {
+  content: "";
+  position: absolute;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  left: 0.45rem;
+  width: 4px;
+  background: linear-gradient(var(--caramelo), var(--rojo));
+  border-radius: 2px;
+}
+
+.hito {
+  position: relative;
+  padding: 0 0 2rem 1.5rem;
+}
+
+.hito:last-child {
+  padding-bottom: 0;
+}
+
+/* Grano de café sobre el eje. */
+.hito::before {
+  content: "";
+  position: absolute;
+  top: 0.35rem;
+  left: -1.5rem;
+  width: 1.3rem;
+  height: 1.7rem;
+  background: var(--cafe);
+  border: 3px solid var(--caramelo);
+  border-radius: 50%;
+  transform: rotate(20deg);
+  transition: transform 0.3s ease;
+}
+
+.hito:hover::before {
+  transform: rotate(-10deg) scale(1.12);
+}
+
+.hitoAnio {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  padding: 0.1rem 0.8rem;
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--crema-clara);
+  background: var(--rojo);
+  border-radius: 999px;
+}
+
+.hitoTarjeta {
+  padding: 1.25rem 1.5rem;
+  background: var(--crema-clara);
+  border: 2px solid var(--arena);
+  border-radius: 18px;
+  box-shadow: 0 2px 8px rgba(43, 26, 18, 0.08);
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.hito:hover .hitoTarjeta {
+  transform: translateX(6px);
+  border-color: var(--rojo);
+}
+
+.hitoTitulo {
+  margin: 0 0 0.35rem;
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  line-height: 1.25;
+  color: var(--cafe);
+}
+
+.hitoTexto {
+  margin: 0;
+  color: var(--marron);
+}
+
+.hitoHoy .hitoAnio {
+  color: var(--cafe);
+  background: var(--caramelo);
+}
+
+.hitoHoy .hitoTarjeta {
+  background:
+    url("/inicio/granos.svg") 0 0 / 120px 120px repeat,
+    var(--cafe);
+  border-color: var(--cafe);
+}
+
+.hitoHoy .hitoTitulo {
+  color: var(--caramelo);
+}
+
+.hitoHoy .hitoTexto {
+  color: var(--crema);
+}
+
+.enlace {
+  display: inline-block;
+  min-height: 44px;
+  padding-block: 0.5rem;
+  color: var(--rojo);
+  font-weight: 700;
+}
+
+.hitoHoy .enlace {
+  color: var(--caramelo);
+}
+
+/* ---------- Misión, visión y valores ---------- */
+
+.proposito {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.bloque {
+  padding: 1.5rem 1.75rem;
+  color: var(--crema);
+  background:
+    url("/inicio/granos.svg") 0 0 / 120px 120px repeat,
+    var(--cafe);
+  border-radius: 20px;
+}
+
+.bloque p {
+  margin: 0;
+}
+
+.bloqueTitulo {
+  margin: 0 0 0.5rem;
+  font-family: var(--serif);
+  font-size: 1.6rem;
+  color: var(--caramelo);
+}
+
+.valoresTitulo {
+  margin: 2.5rem 0 1rem;
+  font-family: var(--serif);
+  font-size: 1.6rem;
+  color: var(--cafe);
+}
+
+.valores {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.valor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--crema);
+  border: 2px solid var(--arena);
+  border-top: 6px solid var(--rojo);
+  border-radius: 16px;
+}
+
+.valorTitulo {
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--cafe);
+}
+
+.valorTexto {
+  color: var(--marron);
+}
+
+@media (min-width: 40rem) {
+  .proposito {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .valores {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 56rem) {
+  .seccion,
+  .seccionCrema {
+    padding: 4.5rem 1.5rem 5.5rem;
+  }
+
+  .cifra {
+    padding-inline: 1.5rem;
+  }
+
+  .valores {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .linea {
+    max-width: 52rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hito::before,
+  .hitoTarjeta {
+    transition: none;
+  }
+
+  .hito:hover::before {
+    transform: rotate(20deg);
+  }
+
+  .hito:hover .hitoTarjeta {
+    transform: none;
+  }
+}

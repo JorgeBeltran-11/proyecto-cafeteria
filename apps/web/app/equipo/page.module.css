@@ -1,0 +1,199 @@
+/*
+ * /equipo. Tokens en _inicio/marco.module.css. Contrastes AAA:
+ *   avatar: crema #fffaf1 sobre #4a2c1d ≈ 12,6:1 · #7a1f1f ≈ 9,9:1 · #14532d ≈ 8,9:1
+ *           · #1f3a5f ≈ 11,4:1 · #5a3a28 ≈ 9,8:1
+ *   cargo: crema sobre rojo #7a1f1f ≈ 9,9:1 · marrón #5a3a28 sobre #fffaf1 ≈ 9,8:1
+ */
+
+.seccion {
+  max-width: 75rem;
+  margin: 0 auto;
+  padding: 3.5rem 1rem 4.5rem;
+}
+
+.titulo {
+  margin: 0 0 2rem;
+  font-family: var(--serif);
+  font-size: clamp(1.8rem, 4.5vw, 2.5rem);
+  line-height: 1.15;
+  color: var(--cafe);
+}
+
+.titulo::after {
+  content: "";
+  display: block;
+  width: 4rem;
+  height: 4px;
+  margin-top: 0.75rem;
+  background: var(--rojo);
+  border-radius: 2px;
+}
+
+.rejilla {
+  display: grid;
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tarjeta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1.5rem 1.5rem;
+  text-align: center;
+  background: var(--crema-clara);
+  border: 2px solid var(--arena);
+  border-radius: 22px;
+  box-shadow: 0 2px 8px rgba(43, 26, 18, 0.08);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.tarjeta:hover {
+  transform: translateY(-6px);
+  border-color: var(--rojo);
+  box-shadow: 0 18px 36px rgba(43, 26, 18, 0.2);
+}
+
+.avatar {
+  width: 7.5rem;
+  height: 7.5rem;
+  margin-bottom: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.tarjeta:hover .avatar {
+  transform: rotate(-5deg) scale(1.05);
+}
+
+.avatarFondo {
+  fill: var(--tono);
+  stroke: var(--caramelo);
+  stroke-width: 3;
+}
+
+.avatarGranos {
+  fill: none;
+  stroke: var(--caramelo);
+  stroke-width: 2;
+  opacity: 0.45;
+}
+
+.avatarTexto {
+  fill: var(--crema-clara);
+  font-family: var(--serif);
+  font-size: 44px;
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.tono1 {
+  --tono: #4a2c1d;
+}
+
+.tono2 {
+  --tono: #7a1f1f;
+}
+
+.tono3 {
+  --tono: #14532d;
+}
+
+.tono4 {
+  --tono: #1f3a5f;
+}
+
+.tono5 {
+  --tono: #5a3a28;
+}
+
+.nombre {
+  margin: 0 0 0.5rem;
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  line-height: 1.25;
+  color: var(--cafe);
+}
+
+.cargo {
+  margin: 0 0 1rem;
+  padding: 0.15rem 0.85rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--crema-clara);
+  background: var(--rojo);
+  border-radius: 999px;
+}
+
+.datos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  width: 100%;
+  margin: 0 0 1rem;
+  padding: 0.75rem 0;
+  border-block: 1px solid var(--arena);
+}
+
+.datos dt {
+  font-size: 0.9rem;
+  color: var(--marron);
+}
+
+.datos dd {
+  margin: 0;
+  font-weight: 700;
+  color: var(--cafe);
+}
+
+.texto {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--marron);
+}
+
+@media (min-width: 36rem) {
+  .rejilla {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 56rem) {
+  .seccion {
+    padding: 4.5rem 1.5rem 5.5rem;
+  }
+
+  .rejilla {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 72rem) {
+  .rejilla {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1.25rem;
+  }
+
+  .tarjeta {
+    padding-inline: 1.1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tarjeta,
+  .avatar {
+    transition: none;
+  }
+
+  .tarjeta:hover,
+  .tarjeta:hover .avatar {
+    transform: none;
+  }
+}
